@@ -1,374 +1,341 @@
+var canvas, ctx;
 
-    const canvas = document.getElementById('game');
-    const context = canvas.getContext('2d');
-    const grid = 64;
-    const numRows = 13;
-    const numCols = 15;
+var sprites_up, sprites_down, sprites_right, sprites_left;
 
-    // create a new canvas and draw the soft wall image. then we can use this
-    // canvas to draw the images later on
-    const softWallCanvas = document.createElement('canvas');
-    const softWallCtx = softWallCanvas.getContext('2d');
-    softWallCanvas.width = softWallCanvas.height = grid;
+var turtles
 
-    softWallCtx.fillStyle = 'black';
-    softWallCtx.fillRect(0, 0, grid, grid);
-    softWallCtx.fillStyle = '#a9a9a9';
+const grid = 48;
+const gridGap = 10;
 
-    // 1st row brick
-    softWallCtx.fillRect(1, 1, grid - 2, 20);
+var frame_turtles=0.2;
+const rows = [];
+var patterns;
 
-    // 2nd row bricks
-    softWallCtx.fillRect(0, 23, 20, 18);
-    softWallCtx.fillRect(22, 23, 42, 18);
+function Sprite(props) {
+    // shortcut for assigning all object properties to the sprite
+    Object.assign(this, props);
+}
+Sprite.prototype.render = function() {
+    frame_turtles += 0.99; //Slowdown Animation
+    // draw a rectangle sprite
 
-    // 3rd row bricks
-    softWallCtx.fillRect(0, 43, 42, 20);
-    softWallCtx.fillRect(44, 43, 20, 20);
+    if (this.name === 'log') {
+        ctx.drawImage(sprites_up, 0, 210, sprites_up.width / 2.66, 40, this.x, this.y, this.size, grid - gridGap);
+    }
+    else if (this.name === 'turtle') {
+        ctx.drawImage(turtles, Math.floor(frame_turtles % 4) * turtles.width / 4, 0, turtles.width / 4, 55, this.x, this.y, grid - gridGap, grid - gridGap);
+    }
+    else if (this.name === 'truck') {
+        ctx.drawImage(sprites_down, 255, 579, sprites_down.width / 4, 55, this.x, this.y, this.size, grid - gridGap);
+    }
+    else if (this.name === 'fast car') {
+        ctx.drawImage(sprites_up, 130, 452, sprites_down.width / 8, 52, this.x, this.y, this.size, grid - gridGap);
+    }
+    else if (this.name === 'car 2') {
+        ctx.drawImage(sprites_down, 385, 585, sprites_down.width / 8 -1, 45, this.x, this.y, this.size, grid - gridGap);
+    }
+    else if (this.name === 'bulldozer') {
+        ctx.drawImage(sprites_up, 257, 389, sprites_down.width / 8 -1, 58, this.x, this.y, this.size, grid - gridGap);
+    }
+    else if (this.name === 'car 1') {
+        ctx.drawImage(sprites_down, 450, 584, sprites_down.width / 8 -1, 48, this.x, this.y, this.size, grid - gridGap);
+    }
+    else {
+        if (this.direction === 'up') {
+            ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+        }
+        else if (this.direction === 'down') {
+            ctx.drawImage(sprites_down, 452, 964, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+        }
+        else if (this.direction === 'right') {
+            ctx.drawImage(sprites_right, 964, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+        }
+        else {
+            ctx.drawImage(sprites_left, 0, 452, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+        }
 
-    // create a new canvas and draw the soft wall image. then we can use this
-    // canvas to draw the images later on
-    const wallCanvas = document.createElement('canvas');
-    const wallCtx = wallCanvas.getContext('2d');
-    wallCanvas.width = wallCanvas.height = grid;
+    }
+}
 
-    wallCtx.fillStyle = 'black';
-    wallCtx.fillRect(0, 0, grid, grid);
-    wallCtx.fillStyle = 'white';
-    wallCtx.fillRect(0, 0, grid - 2, grid - 2);
-    wallCtx.fillStyle = '#a9a9a9';
-    wallCtx.fillRect(2, 2, grid - 4, grid - 4);
+const frogger = new Sprite({
+    x: grid * 6,
+    y: grid * 13,
+    color: 'greenyellow',
+    size: grid,
+    name: 'frogger',
+    direction: 'up'
+});
+const scoredFroggers = []
 
-    // create a mapping of object types
-    const types = {
-        wall: '▉',
-        softWall: 1,
-        bomb: 2
-    };
+function init() {
+    canvas = document.getElementById("game");
+    ctx = canvas.getContext("2d");
+    makeSprites();
+    preloadAssets();
+    loadSprites();
+}
 
-    // keep track of all entities
-    let entities = [];
+function makeSprites() {
+   patterns = [
+        // end bank is safe
+        null,
 
-    // keep track of what is in every cell of the game using a 2d array. the
-    // template is used to note where walls are and where soft walls cannot spawn.
-    // '▉' represents a wall
-    // 'x' represents a cell that cannot have a soft wall (player start zone)
-    let cells = [];
-    const template = [
-        ['▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉'],
-        ['▉','x','x',   ,   ,   ,   ,   ,   ,   ,   ,   ,'x','x','▉'],
-        ['▉','x','▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉','x','▉'],
-        ['▉','x',   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,'x','▉'],
-        ['▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉'],
-        ['▉',   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,'▉'],
-        ['▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉'],
-        ['▉',   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,'▉'],
-        ['▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉'],
-        ['▉','x',   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,   ,'x','▉'],
-        ['▉','x','▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉',   ,'▉','x','▉'],
-        ['▉','x','x',   ,   ,   ,   ,   ,   ,   ,   ,   ,'x','x','▉'],
-        ['▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉','▉']
+        // log
+        {
+            spacing: [2],      // how many grid spaces between each obstacle
+            color: '#c55843',  // color of the obstacle
+            size: grid * 4,    // width (rect) / diameter (circle) of the obstacle
+            name: 'log',       // shape of the obstacle (rect or circle)
+            speed: 0.75        // how fast the obstacle moves and which direction
+        },
+
+        // turtle
+        {
+            spacing: [0,2,0,2,0,2,0,4],
+            color: '#de0004',
+            size: grid,
+            name: 'turtle',
+            speed: -1
+        },
+
+        // long log
+        {
+            spacing: [2],
+            color: '#c55843',
+            size: grid * 7,
+            name: 'log',
+            speed: 1.5
+        },
+
+        // log
+        {
+            spacing: [3],
+            color: '#c55843',
+            size: grid * 3,
+            name: 'log',
+            speed: 0.5
+        },
+
+        // turtle
+        {
+            spacing: [0,0,1],
+            color: '#de0004',
+            size: grid,
+            name: 'turtle',
+            speed: -1
+        },
+
+        // beach is safe
+        null,
+
+        // truck
+        {
+            spacing: [3,8],
+            color: '#c2c4da',
+            size: grid * 2,
+            name: 'truck',
+            speed: -1
+        },
+
+        // fast car
+        {
+            spacing: [14],
+            color: '#c2c4da',
+            size: grid,
+            name: 'fast car',
+            speed: 0.75
+        },
+
+        // car
+        {
+            spacing: [3,3,7],
+            color: '#de3cdd',
+            size: grid,
+            name: 'car 2',
+            speed: -0.75
+        },
+
+        // bulldozer
+        {
+            spacing: [3,3,7],
+            color: '#0bcb00',
+            size: grid,
+            name: 'bulldozer',
+            speed: 0.5
+        },
+
+        // car
+        {
+            spacing: [4],
+            color: '#e5e401',
+            size: grid,
+            name: 'car 1',
+            speed: -0.5
+        },
+
+        // start zone is safe
+        null
     ];
+}
 
-    // populate the level with walls and soft walls
-    function generateLevel() {
-        cells = [];
+function loadSprites() {
+// rows holds all the sprites for that row
 
-        for (let row = 0; row < numRows; row++) {
-            cells[row] = [];
+    for (let i = 0; i < patterns.length; i++) {
+        rows[i] = [];
 
-            for (let col = 0; col < numCols; col++) {
+        let x = 0;
+        let index = 0;
+        const pattern = patterns[i];
 
-                // 90% chance cells will contain a soft wall
-                if (!template[row][col] && Math.random() < 0.90) {
-                    cells[row][col] = types.softWall;
+        // skip empty patterns (safe zones)
+        if (!pattern) {
+            continue;
+        }
+
+        // allow there to be 1 extra pattern offscreen so the loop is seamless
+        // (especially for the long log)
+        let totalPatternWidth =
+            pattern.spacing.reduce((acc, space) => acc + space, 0) * grid +
+            pattern.spacing.length * pattern.size;
+        let endX = 0;
+        while (endX < canvas.width) {
+            endX += totalPatternWidth;
+        }
+        endX += totalPatternWidth;
+
+        // populate the row with sprites
+        while (x < endX) {
+            rows[i].push(new Sprite({
+                x,
+                y: grid * (i + 1),
+                index,
+                ...pattern
+            }));
+
+            // move the next sprite over according to the spacing
+            const spacing = pattern.spacing;
+            x += pattern.size + spacing[index] * grid;
+            index = (index + 1) % spacing.length;
+        }
+    }
+}
+
+function gameLoop() {
+    draw();
+}
+
+function draw() {
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    updateAndDraw();
+    frogger.x += frogger.speed || 0;
+    frogger.render();
+}
+
+function updateAndDraw() {
+    for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
+
+        for (let i = 0; i < row.length; i++) {
+            const sprite = row[i]
+            sprite.x += sprite.speed;
+            sprite.render();
+
+            // loop sprite around the screen
+            // sprite is moving to the left and goes offscreen
+            if (sprite.speed < 0 && sprite.x < 0 - sprite.size) {
+
+                // find the rightmost sprite
+                let rightMostSprite = sprite;
+                for (let j = 0; j < row.length; j++) {
+                    if (row[j].x > rightMostSprite.x) {
+                        rightMostSprite = row[j];
+                    }
                 }
-                else if (template[row][col] === types.wall) {
-                    cells[row][col] = types.wall;
+
+                // move the sprite to the next spot in the pattern so it continues
+                const spacing = patterns[r].spacing;
+                sprite.x =
+                    rightMostSprite.x + rightMostSprite.size +
+                    spacing[rightMostSprite.index] * grid;
+                sprite.index = (rightMostSprite.index + 1) % spacing.length;
+            }
+
+            // sprite is moving to the right and goes offscreen
+            if (sprite.speed > 0 && sprite.x > canvas.width) {
+
+                // find the leftmost sprite
+                let leftMostSprite = sprite;
+                for (let j = 0; j < row.length; j++) {
+                    if (row[j].x < leftMostSprite.x) {
+                        leftMostSprite = row[j];
+                    }
                 }
+
+                // move the sprite to the next spot in the pattern so it continues
+                const spacing = patterns[r].spacing;
+                let index = leftMostSprite.index - 1;
+                index = index >= 0 ? index : spacing.length - 1;
+                sprite.x = leftMostSprite.x - spacing[index] * grid - sprite.size;
+                sprite.index = index;
             }
         }
     }
+}
 
-    // blow up a bomb and its surrounding tiles
-    function blowUpBomb(bomb) {
-
-        // bomb has already exploded so don't blow up again
-        if (!bomb.alive) return;
-
-        bomb.alive = false;
-
-        // remove bomb from grid
-        cells[bomb.row][bomb.col] = null;
-
-        // explode bomb outward by size
-        const dirs = [{
-            // up
-            row: -1,
-            col: 0
-        }, {
-            // down
-            row: 1,
-            col: 0
-        }, {
-            // left
-            row: 0,
-            col: -1
-        }, {
-            // right
-            row: 0,
-            col: 1
-        }];
-        dirs.forEach((dir) => {
-            for (let i = 0; i < bomb.size; i++) {
-                const row = bomb.row + dir.row * i;
-                const col = bomb.col + dir.col * i;
-                const cell = cells[row][col];
-
-                // stop the explosion if it hit a wall
-                if (cell === types.wall) {
-                    return;
-                }
-
-                // center of the explosion is the first iteration of the loop
-                entities.push(new Explosion(row, col, dir, i === 0 ? true : false));
-                cells[row][col] = null;
-
-                // bomb hit another bomb so blow that one up too
-                if (cell === types.bomb) {
-
-                    // find the bomb that was hit by comparing positions
-                    const nextBomb = entities.find((entity) => {
-                        return (
-                            entity.type === types.bomb &&
-                            entity.row === row && entity.col === col
-                        );
-                    });
-                    blowUpBomb(nextBomb);
-                }
-
-                // stop the explosion if hit anything
-                if (cell) {
-                    return;
-                }
-            }
-        });
+function keyboardPressed(ev) {
+    //links
+    if (ev.which === 37) {
+        frogger.x -= grid;
+        frogger.direction = 'left';
+    }
+    //rechts
+    else if (ev.which === 39) {
+        frogger.x += grid;
+        frogger.direction = 'right';
+    }
+    //hoch
+    else if (ev.which === 38) {
+        frogger.y -= grid;
+        frogger.direction = 'up';
+    }
+    //runter
+    else if (ev.which === 40) {
+        frogger.y += grid;
+        frogger.direction = 'down';
     }
 
-    // bomb constructor function
-    function Bomb(row, col, size, owner) {
-        this.row = row;
-        this.col = col;
-        this.radius = grid * 0.4;
-        this.size = size;    // the size of the explosion
-        this.owner = owner;  // which player placed this bomb
-        this.alive = true;
-        this.type = types.bomb;
+    frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
+    frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
+}
 
-        // bomb blows up after 3 seconds
-        this.timer = 3000;
+function preloadAssets() {
+    var _toPreload = 0;
 
-        // update the bomb each frame
-        this.update = function(dt) {
-            this.timer -= dt;
+    var addImage = function (src) {
+        var img = new Image();
+        img.src = src;
+        _toPreload++;
 
-            // blow up bomb if timer is done
-            if (this.timer <= 0) {
-                return blowUpBomb(this);
-            }
-
-            // change the size of the bomb every half second. we can determine the size
-            // by dividing by 500 (half a second) and taking the ceiling of the result.
-            // then we can check if the result is even or odd and change the size
-            const interval = Math.ceil(this.timer / 500);
-            if (interval % 2 === 0) {
-                this.radius = grid * 0.4;
-            }
-            else {
-                this.radius = grid * 0.5;
-            }
-        };
-
-        // render the bomb each frame
-        this.render = function() {
-            const x = (this.col + 0.5) * grid;
-            const y = (this.row + 0.5) * grid;
-
-            // draw bomb
-            context.fillStyle = 'black';
-            context.beginPath();
-            context.arc(x, y, this.radius, 0, 2 * Math.PI);
-            context.fill();
-
-            // draw bomb fuse moving up and down with the bomb size
-            const fuseY = (this.radius === grid * 0.5 ? grid * 0.15 : 0);
-            context.strokeStyle = 'white';
-            context.lineWidth = 5;
-            context.beginPath();
-            context.arc(
-                (this.col + 0.75) * grid,
-                (this.row + 0.25) * grid - fuseY,
-                10, Math.PI, -Math.PI / 2
-            );
-            context.stroke();
-        };
+        img.addEventListener('load', function () {
+            _toPreload--;
+        }, false);
+        return img;
     }
+    sprites_up = addImage("sprites/frogger_sprites_up.png");
+    sprites_down = addImage("sprites/frogger_sprites_down.png");
+    sprites_right = addImage("sprites/frogger_sprites_right.png");
+    sprites_left = addImage("sprites/frogger_sprites_left.png");
+    turtles = addImage("sprites/turtles.png");
 
-    // explosion constructor function
-    function Explosion(row, col, dir, center) {
-        this.row = row;
-        this.col = col;
-        this.dir = dir;
-        this.alive = true;
-
-        // show explosion for 0.3 seconds
-        this.timer = 300;
-
-        // update the explosion each frame
-        this.update = function(dt) {
-            this.timer -= dt;
-
-            if (this.timer <=0) {
-                this.alive = false;
-            }
-        };
-
-        // render the explosion each frame
-        this.render = function() {
-            const x = this.col * grid;
-            const y = this.row * grid;
-            const horizontal = this.dir.col;
-            const vertical = this.dir.row;
-
-            // create a fire effect by stacking red, orange, and yellow on top of
-            // each other using progressively smaller rectangles
-            context.fillStyle = '#D72B16';  // red
-            context.fillRect(x, y, grid, grid);
-
-            context.fillStyle = '#F39642';  // orange
-
-            // determine how to draw based on if it's vertical or horizontal
-            // center draws both ways
-            if (center || horizontal) {
-                context.fillRect(x, y + 6, grid, grid - 12);
-            }
-            if (center || vertical) {
-                context.fillRect(x + 6, y, grid - 12, grid);
-            }
-
-            context.fillStyle = '#FFE5A8';  // yellow
-
-            if (center || horizontal) {
-                context.fillRect(x, y + 12, grid, grid - 24);
-            }
-            if (center || vertical) {
-                context.fillRect(x + 12, y, grid - 24, grid);
-            }
-        };
+    var checkResources = function () {
+        if (_toPreload === 0)
+            setInterval (gameLoop,40);
+        else
+            setTimeout(checkResources, 200);
     }
+    checkResources();
 
-    // player character (just a simple circle)
-    const player = {
-        row: 1,
-        col: 1,
-        numBombs: 1,
-        bombSize: 3,
-        radius: grid * 0.35,
-        render() {
-            const x = (this.col + 0.5) * grid;
-            const y = (this.row + 0.5) * grid;
-
-            context.save();
-            context.fillStyle = 'white';
-            context.beginPath();
-            context.arc(x, y, this.radius, 0, 2 * Math.PI);
-            context.fill();
-        }
-    }
-
-    // game loop
-    let last;
-    let dt;
-    function loop(timestamp) {
-        requestAnimationFrame(loop);
-        context.clearRect(0,0,canvas.width,canvas.height);
-
-        // calculate the time difference since the last update. requestAnimationFrame
-        // passes the current timestamp as a parameter to the loop
-        if (!last) {
-            last = timestamp;
-        }
-        dt = timestamp - last;
-        last = timestamp;
-
-        // update and render everything in the grid
-        for (let row = 0; row < numRows; row++) {
-            for (let col = 0; col < numCols; col++) {
-                switch(cells[row][col]) {
-                    case types.wall:
-                        context.drawImage(wallCanvas, col * grid, row * grid);
-                        break;
-                    case types.softWall:
-                        context.drawImage(softWallCanvas, col * grid, row * grid);
-                        break;
-                }
-            }
-        }
-
-        // update and render all entities
-        entities.forEach((entity) => {
-            entity.update(dt);
-            entity.render();
-        });
-
-        // remove dead entities
-        entities = entities.filter((entity) => entity.alive);
-
-        player.render();
-    }
-
-    // listen to keyboard events to move the snake
-    document.addEventListener('keydown', function(e) {
-        let row = player.row;
-        let col = player.col;
-
-        // left arrow key
-        if (e.which === 37) {
-            col--;
-        }
-        // up arrow key
-        else if (e.which === 38) {
-            row--;
-        }
-        // right arrow key
-        else if (e.which === 39) {
-            col++;
-        }
-        // down arrow key
-        else if (e.which === 40) {
-            row++;
-        }
-        // space key (bomb)
-        else if (
-            e.which === 32 && !cells[row][col] &&
-            // count the number of bombs the player has placed
-            entities.filter((entity) => {
-                return entity.type === types.bomb && entity.owner === player
-            }).length < player.numBombs
-        ) {
-            // place bomb
-            const bomb = new Bomb(row, col, player.bombSize, player);
-            entities.push(bomb);
-            cells[row][col] = types.bomb;
-        }
-
-        // don't move the player if something is already at that position
-        if (!cells[row][col]) {
-            player.row = row;
-            player.col = col;
-        }
-    });
-
-    // start the game
-    generateLevel();
-    requestAnimationFrame(loop);
+}
+document.addEventListener("keydown", keyboardPressed)
+document.addEventListener("DOMContentLoaded", init);

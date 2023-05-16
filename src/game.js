@@ -42,16 +42,16 @@ Sprite.prototype.render = function() {
     }
     else {
         if (this.direction === 'up') {
-            ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+            ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid -gridGap);
         }
         else if (this.direction === 'down') {
-            ctx.drawImage(sprites_down, 452, 964, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+            ctx.drawImage(sprites_down, 452, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid- gridGap);
         }
         else if (this.direction === 'right') {
-            ctx.drawImage(sprites_right, 964, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+            ctx.drawImage(sprites_right, 976, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
         }
         else {
-            ctx.drawImage(sprites_left, 0, 452, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid);
+            ctx.drawImage(sprites_left, 0, 452, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
         }
 
     }

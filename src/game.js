@@ -1,7 +1,7 @@
 var canvas, ctx;
 
+var water, gras, brick, street;
 var sprites_up, sprites_down, sprites_right, sprites_left;
-
 var turtles
 
 const grid = 48;
@@ -16,7 +16,7 @@ function Sprite(props) {
     Object.assign(this, props);
 }
 Sprite.prototype.render = function() {
-    frame_turtles += 0.99; //Slowdown Animation
+    frame_turtles += 0.5; //Slowdown Animation
     // draw a rectangle sprite
 
     if (this.name === 'log') {
@@ -39,6 +39,9 @@ Sprite.prototype.render = function() {
     }
     else if (this.name === 'car 1') {
         ctx.drawImage(sprites_down, 450, 584, sprites_down.width / 8 -1, 48, this.x, this.y, this.size, grid - gridGap);
+    }
+    else if (this.name === 'scoredFrog') {
+        ctx.drawImage(sprites_up, 262, 8, sprites_up.width / 8 -12, 54, this.x, this.y, grid, grid- 10);
     }
     else {
         if (this.direction === 'up') {
@@ -227,9 +230,36 @@ function gameLoop() {
 
 function draw() {
     ctx.clearRect(0,0, canvas.width, canvas.height);
+    drawBackground();
     updateAndDraw();
-    frogger.x += frogger.speed || 0;
-    frogger.render();
+    drawFrogger();
+}
+
+function drawBackground() {
+    //Water
+    ctx.fillStyle = '#020079';
+    ctx.fillRect(0, grid, canvas.width, grid * 6);
+
+    // End Zone
+    ctx.drawImage(gras, 0, grid, canvas.width, 5);
+    ctx.drawImage(gras, 0, grid, 5, grid);
+    ctx.drawImage(gras, canvas.width - 5, grid, 5, grid);
+    for(let i = 0; i < 4; i++) {
+        ctx.drawImage(gras, grid + grid * 3 * i, grid, grid * 2, grid);
+    }
+
+
+    //beach
+    for(let i = 0; i < 13; i++) {
+        ctx.drawImage(brick, 48 * i, 7 * grid, 48, grid);
+    }
+
+
+    //start zone
+    for(let i = 0; i < 13; i++) {
+        ctx.drawImage(brick, 48 * i, canvas.height - grid * 2, 48, grid);
+    }
+
 }
 
 function updateAndDraw() {
@@ -283,6 +313,62 @@ function updateAndDraw() {
     }
 }
 
+function drawFrogger() {
+    frogger.x += frogger.speed || 0;
+    frogger.render();
+    scoredFroggers.forEach(frog => frog.render());
+
+    // check for collision with all sprites in the same row as frogger
+    const froggerRow = frogger.y / grid - 1 | 0;
+    let collision = false;
+    for (let i = 0; i < rows[froggerRow].length; i++) {
+        let sprite = rows[froggerRow][i];
+
+        // axis-aligned bounding box (AABB) collision check
+        // treat any circles as rectangles for the purposes of collision
+        if (frogger.x < sprite.x + sprite.size - gridGap &&
+            frogger.x + grid - gridGap > sprite.x &&
+            frogger.y < sprite.y + grid &&
+            frogger.y + grid > sprite.y) {
+            collision = true;
+
+            // reset frogger if got hit by car
+            if (froggerRow > rows.length / 2) {
+                frogger.x = grid * 6;
+                frogger.y = grid * 13;
+            }
+            // move frogger along with obstacle
+            else {
+                frogger.speed = sprite.speed;
+            }
+        }
+    }
+
+    if (!collision) {
+        // if fogger isn't colliding reset speed
+        frogger.speed = 0;
+
+        // frogger got to end bank (goal every 3 cols)
+        const col = (frogger.x + grid / 2) / grid | 0;
+        if (froggerRow === 0 && col % 3 === 0 &&
+            // check to see if there isn't a scored frog already there
+            !scoredFroggers.find(frog => frog.x === col * grid)) {
+            scoredFroggers.push(new Sprite({
+                ...frogger,
+                x: col * grid,
+                y: frogger.y + 5,
+                name: 'scoredFrog'
+            }));
+        }
+
+        // reset frogger if not on obstacle in river
+        if (froggerRow < rows.length / 2 - 1) {
+            frogger.x = grid * 6;
+            frogger.y = grid * 13;
+        }
+    }
+}
+
 function keyboardPressed(ev) {
     //links
     if (ev.which === 37) {
@@ -322,6 +408,9 @@ function preloadAssets() {
         }, false);
         return img;
     }
+    water = addImage("sprites/water.png");
+    gras = addImage("sprites/gras.png");
+    brick = addImage("sprites/brick.png")
     sprites_up = addImage("sprites/frogger_sprites_up.png");
     sprites_down = addImage("sprites/frogger_sprites_down.png");
     sprites_right = addImage("sprites/frogger_sprites_right.png");

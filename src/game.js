@@ -1,30 +1,46 @@
 var canvas, ctx;
 
-var water, gras, brick, street;
-var sprites_up, sprites_down, sprites_right, sprites_left;
+//sprites
+var water, gras, brick;
+var sprites_up, sprites_down, sprites_right, sprites_left, sprites_mirrored;
 var turtles
 
+// score / time
 var score = 0;
+var playtime = 45;
+var remaining_time = 0;
+var start_time = new Date();
+var lives = 6;
 
 const grid = 48;
 const gridGap = 10;
 
-var frame_turtles=0.2;
+var frame_frogger = 0.2
+var frame_turtles= 0.2;
+var frame_death = 0.2;
+
+var test = 0;
+
+
 const rows = [];
 var patterns;
+
 
 function Sprite(props) {
     // shortcut for assigning all object properties to the sprite
     Object.assign(this, props);
 }
 Sprite.prototype.render = function() {
-    frame_turtles += 0.99; //Slowdown Animation
+
+     //Slowdown Animation
     // draw a rectangle sprite
 
     if (this.name === 'log') {
         ctx.drawImage(sprites_up, 0, 210, sprites_up.width / 2.66, 40, this.x, this.y, this.size, grid - gridGap);
     }
     else if (this.name === 'turtle') {
+        frame_turtles += 0.002;
+
         ctx.drawImage(turtles, Math.floor(frame_turtles % 4) * turtles.width / 4, 0, turtles.width / 4, 55, this.x, this.y, grid - gridGap, grid - gridGap);
     }
     else if (this.name === 'truck') {
@@ -45,9 +61,20 @@ Sprite.prototype.render = function() {
     else if (this.name === 'scoredFrog') {
         ctx.drawImage(sprites_up, 262, 8, sprites_up.width / 8 -12, 54, this.x, this.y, grid, grid- 10);
     }
+    else if (this.state === 'dead') {
+        frame_death += 0.03;
+
+        ctx.drawImage(sprites_mirrored, 256 +Math.floor(frame_death % 4) * sprites_mirrored.width / 8, 64, sprites_mirrored.width / 8, 60, this.x, this.y, grid - gridGap, grid - gridGap);
+    }
     else {
         if (this.direction === 'up') {
-            ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid -gridGap);
+
+            if (frogger.state === "jumping") {
+                frame_frogger += 0.03;
+                ctx.drawImage(sprites_up, Math.floor(frame_turtles % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+            } else {
+                ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+            }
         }
         else if (this.direction === 'down') {
             ctx.drawImage(sprites_down, 452, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid- gridGap);
@@ -68,9 +95,12 @@ const frogger = new Sprite({
     color: 'greenyellow',
     size: grid,
     name: 'frogger',
-    direction: 'up'
+    direction: 'up',
+    state: 'alive'
 });
-const scoredFroggers = []
+var scoredFroggers = []
+
+//window.onload = init;
 
 function init() {
     canvas = document.getElementById("game");
@@ -109,7 +139,7 @@ function makeSprites() {
             color: '#c55843',
             size: grid * 7,
             name: 'log',
-            speed: 1.5
+            speed: 1
         },
 
         // log
@@ -227,15 +257,39 @@ function loadSprites() {
 }
 
 function gameLoop() {
-    draw();
+    draw()
+    window.requestAnimationFrame(gameLoop);
 }
 
 function draw() {
     ctx.clearRect(0,0, canvas.width, canvas.height);
-    drawBackground();
+    drawTime();
     drawScore();
+    drawLives();
+    drawBackground();
     updateAndDraw();
     drawFrogger();
+}
+
+function drawTime() {
+    var current_time = new Date();
+    remaining_time = playtime - Math.floor((current_time.getTime() - start_time.getTime()) / 1000);
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Time: " + remaining_time, grid * 10, grid*15 - 12);
+}
+
+function drawScore() {
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Score: " + score, 10, 34);
+}
+
+function drawLives() {
+    for(let i = 0; i < lives; i++) {
+        let gap = 20 * i;
+        ctx.drawImage(sprites_up, 64, 0, sprites_up.width / 8 - 4, 60, gap, grid * 14, 20, grid / 2);
+    }
 }
 
 function drawBackground() {
@@ -261,12 +315,6 @@ function drawBackground() {
         ctx.drawImage(brick, 48 * i, canvas.height - grid * 2, 48, grid);
     }
 
-}
-
-function drawScore() {
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "white";
-    ctx.fillText("Score: " + score, 10, 34);
 }
 
 function updateAndDraw() {
@@ -323,6 +371,12 @@ function updateAndDraw() {
 function drawFrogger() {
     frogger.x += frogger.speed || 0;
     frogger.render();
+
+    // if all Frogs are Scored, reset
+    if(scoredFroggers.length === 5) {
+        scoredFroggers = [];
+        score += 1000;
+    }
     scoredFroggers.forEach(frog => frog.render());
 
     // check for collision with all sprites in the same row as frogger
@@ -340,12 +394,20 @@ function drawFrogger() {
             collision = true;
 
             // reset frogger if got hit by car
-            if (froggerRow > rows.length / 2) {
-                frogger.x = grid * 6;
-                frogger.y = grid * 13;
+            if (froggerRow > rows.length / 2 && frogger.state !== "dead") {
+                    frogger.state = "dead";
+                setTimeout(function () {
+                    frame_death = 0;
+                    frogger.x = grid * 6;
+                    frogger.y = grid * 13;
+                    lives -= 1;
+                    frogger.state = "alive";
+                    start_time = new Date();
+                }, 1900)
+
             }
             // move frogger along with obstacle
-            else {
+            else if (frogger.state !== "dead") {
                 frogger.speed = sprite.speed;
             }
         }
@@ -366,38 +428,44 @@ function drawFrogger() {
                 y: frogger.y + 5,
                 name: 'scoredFrog'
             }));
-            score += 200;
+            score += 50 + remaining_time / 2 * 10;
+            lives += 1;
+            start_time = new Date();
         }
 
         // reset frogger if not on obstacle in river
         if (froggerRow < rows.length / 2 - 1) {
             frogger.x = grid * 6;
             frogger.y = grid * 13;
+            lives -= 1;
         }
     }
 }
 
 function keyboardPressed(ev) {
-    //links
-    if (ev.which === 37) {
-        frogger.direction = 'left';
-        frogger.x -= grid
-    }
-    //rechts
-    else if (ev.which === 39) {
-        frogger.x += grid;
-        frogger.direction = 'right';
-    }
-    //hoch
-    else if (ev.which === 38) {
-        frogger.y -= grid;
-        frogger.direction = 'up'
-        score += 10;
-    }
-    //runter
-    else if (ev.which === 40) {
-        frogger.y += grid;
-        frogger.direction = 'down';
+    if(frogger.state !== "dead") {
+        //links
+        if (ev.which === 37) {
+            frogger.direction = 'left';
+            frogger.x -= grid
+        }
+        //rechts
+        else if (ev.which === 39) {
+            frogger.x += grid;
+            frogger.direction = 'right';
+        }
+        //hoch
+        else if (ev.which === 38) {
+            //frogger.state = "jumping"
+            frogger.y -= grid;
+            frogger.direction = 'up'
+            score += 10;
+        }
+        //runter
+        else if (ev.which === 40) {
+            frogger.y += grid;
+            frogger.direction = 'down';
+        }
     }
 
     frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
@@ -405,10 +473,10 @@ function keyboardPressed(ev) {
 }
 
 function preloadAssets() {
-    var _toPreload = 0;
+    let _toPreload = 0;
 
-    var addImage = function (src) {
-        var img = new Image();
+    const addImage = function (src) {
+        const img = new Image();
         img.src = src;
         _toPreload++;
 
@@ -416,7 +484,7 @@ function preloadAssets() {
             _toPreload--;
         }, false);
         return img;
-    }
+    };
     water = addImage("sprites/water.png");
     gras = addImage("sprites/gras.png");
     brick = addImage("sprites/brick.png")
@@ -424,14 +492,15 @@ function preloadAssets() {
     sprites_down = addImage("sprites/frogger_sprites_down.png");
     sprites_right = addImage("sprites/frogger_sprites_right.png");
     sprites_left = addImage("sprites/frogger_sprites_left.png");
+    sprites_mirrored = addImage("sprites/frogger_sprites_mirrored.png");
     turtles = addImage("sprites/turtles.png");
 
-    var checkResources = function () {
+    const checkResources = function () {
         if (_toPreload === 0)
-            setInterval (gameLoop,40);
+            window.requestAnimationFrame(gameLoop);
         else
             setTimeout(checkResources, 200);
-    }
+    };
     checkResources();
 
 }

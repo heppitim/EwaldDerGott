@@ -4,6 +4,8 @@ var water, gras, brick, street;
 var sprites_up, sprites_down, sprites_right, sprites_left;
 var turtles
 
+var score = 0;
+
 const grid = 48;
 const gridGap = 10;
 
@@ -16,7 +18,7 @@ function Sprite(props) {
     Object.assign(this, props);
 }
 Sprite.prototype.render = function() {
-    frame_turtles += 0.5; //Slowdown Animation
+    frame_turtles += 0.99; //Slowdown Animation
     // draw a rectangle sprite
 
     if (this.name === 'log') {
@@ -121,7 +123,7 @@ function makeSprites() {
 
         // turtle
         {
-            spacing: [0,0,1],
+            spacing: [0,0,1.5],
             color: '#de0004',
             size: grid,
             name: 'turtle',
@@ -142,11 +144,11 @@ function makeSprites() {
 
         // fast car
         {
-            spacing: [14],
+            spacing: [2,10],
             color: '#c2c4da',
             size: grid,
             name: 'fast car',
-            speed: 0.75
+            speed: 2.0
         },
 
         // car
@@ -231,6 +233,7 @@ function gameLoop() {
 function draw() {
     ctx.clearRect(0,0, canvas.width, canvas.height);
     drawBackground();
+    drawScore();
     updateAndDraw();
     drawFrogger();
 }
@@ -248,18 +251,22 @@ function drawBackground() {
         ctx.drawImage(gras, grid + grid * 3 * i, grid, grid * 2, grid);
     }
 
-
     //beach
     for(let i = 0; i < 13; i++) {
         ctx.drawImage(brick, 48 * i, 7 * grid, 48, grid);
     }
-
 
     //start zone
     for(let i = 0; i < 13; i++) {
         ctx.drawImage(brick, 48 * i, canvas.height - grid * 2, 48, grid);
     }
 
+}
+
+function drawScore() {
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Score: " + score, 10, 34);
 }
 
 function updateAndDraw() {
@@ -345,7 +352,7 @@ function drawFrogger() {
     }
 
     if (!collision) {
-        // if fogger isn't colliding reset speed
+        // if frogger isn't colliding reset speed
         frogger.speed = 0;
 
         // frogger got to end bank (goal every 3 cols)
@@ -359,6 +366,7 @@ function drawFrogger() {
                 y: frogger.y + 5,
                 name: 'scoredFrog'
             }));
+            score += 200;
         }
 
         // reset frogger if not on obstacle in river
@@ -372,8 +380,8 @@ function drawFrogger() {
 function keyboardPressed(ev) {
     //links
     if (ev.which === 37) {
-        frogger.x -= grid;
         frogger.direction = 'left';
+        frogger.x -= grid
     }
     //rechts
     else if (ev.which === 39) {
@@ -383,7 +391,8 @@ function keyboardPressed(ev) {
     //hoch
     else if (ev.which === 38) {
         frogger.y -= grid;
-        frogger.direction = 'up';
+        frogger.direction = 'up'
+        score += 10;
     }
     //runter
     else if (ev.which === 40) {

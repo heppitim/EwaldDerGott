@@ -69,7 +69,7 @@ Sprite.prototype.render = function() {
     else {
         if (this.direction === 'up') {
 
-            if (frogger.state === "jumping") {
+            if (frogger.secondstate === "jumping") {
                 frame_frogger += 0.03;
                 ctx.drawImage(sprites_up, Math.floor(frame_turtles % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
             } else {
@@ -96,7 +96,8 @@ const frogger = new Sprite({
     size: grid,
     name: 'frogger',
     direction: 'up',
-    state: 'alive'
+    state: 'alive',
+    secondstate: 'solid'
 });
 var scoredFroggers = []
 
@@ -394,20 +395,11 @@ function drawFrogger() {
             collision = true;
 
             // reset frogger if got hit by car
-            if (froggerRow > rows.length / 2 && frogger.state !== "dead") {
-                    frogger.state = "dead";
-                setTimeout(function () {
-                    frame_death = 0;
-                    frogger.x = grid * 6;
-                    frogger.y = grid * 13;
-                    lives -= 1;
-                    frogger.state = "alive";
-                    start_time = new Date();
-                }, 1900)
-
+            if (froggerRow > rows.length / 2 && frogger.state !== "dead" && frogger.secondstate !== "jumping") {
+                death();
             }
             // move frogger along with obstacle
-            else if (frogger.state !== "dead") {
+            else if (frogger.state !== "dead" && frogger.secondstate !== "jumping") {
                 frogger.speed = sprite.speed;
             }
         }
@@ -419,7 +411,7 @@ function drawFrogger() {
 
         // frogger got to end bank (goal every 3 cols)
         const col = (frogger.x + grid / 2) / grid | 0;
-        if (froggerRow === 0 && col % 3 === 0 &&
+        if (froggerRow === 0 && col % 3 === 0 && frogger.y % grid === 0 &&
             // check to see if there isn't a scored frog already there
             !scoredFroggers.find(frog => frog.x === col * grid)) {
             scoredFroggers.push(new Sprite({
@@ -429,47 +421,104 @@ function drawFrogger() {
                 name: 'scoredFrog'
             }));
             score += 50 + remaining_time / 2 * 10;
-            lives += 1;
             start_time = new Date();
         }
 
         // reset frogger if not on obstacle in river
-        if (froggerRow < rows.length / 2 - 1) {
-            frogger.x = grid * 6;
-            frogger.y = grid * 13;
-            lives -= 1;
+        if (froggerRow < rows.length / 2 - 1 && frogger.state !== "dead" && frogger.secondstate !== "jumping") {
+            if(froggerRow === 0) {
+                frogger.x = grid * 6;
+                frogger.y = grid * 13;
+            } else {
+                death();
+            }
         }
     }
 }
 
+function death() {
+    frogger.state = "dead";
+    setTimeout(function () {
+        frame_death = 0;
+        frogger.x = grid * 6;
+        frogger.y = grid * 13;
+        lives -= 1;
+        frogger.state = "alive";
+        start_time = new Date();
+    }, 1900);
+}
+
 function keyboardPressed(ev) {
-    if(frogger.state !== "dead") {
+    let id
+    let end = 0;
+    let timeout = 7;
+
+    if(frogger.state !== "dead" && frogger.secondstate !=="jumping") {
         //links
+        frogger.secondstate = "jumping";
         if (ev.which === 37) {
             frogger.direction = 'left';
-            frogger.x -= grid
+            id = setInterval(function () {
+                if(end === 48) {
+                    clearInterval(id);
+                    frogger.secondstate = "solid"
+                }
+                else {
+                    frogger.x -= 2;
+                }
+                end += 2;
+                frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
+            }, timeout)
         }
         //rechts
         else if (ev.which === 39) {
-            frogger.x += grid;
             frogger.direction = 'right';
+            id = setInterval(function () {
+                if(end === 48) {
+                    clearInterval(id);
+                    frogger.secondstate = "solid"
+                }
+                else {
+                    frogger.x += 2;
+                }
+                end += 2;
+                frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
+            }, timeout)
         }
         //hoch
         else if (ev.which === 38) {
-            //frogger.state = "jumping"
-            frogger.y -= grid;
             frogger.direction = 'up'
+            id = setInterval(function () {
+                if(end === 48) {
+                    clearInterval(id);
+                    frogger.secondstate = "solid"
+                }
+                else {
+                    frogger.y -= 2;
+                }
+                end += 2;
+                frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
+            }, timeout)
             score += 10;
         }
         //runter
         else if (ev.which === 40) {
-            frogger.y += grid;
             frogger.direction = 'down';
+            id = setInterval(function () {
+                if(end === 48) {
+                    clearInterval(id);
+                    frogger.secondstate = "solid"
+                }
+                else {
+                    frogger.y += 2;
+                }
+                end += 2;
+                frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
+            }, timeout)
         }
     }
-
-    frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
-    frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
+   //frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
+   //frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
 }
 
 function preloadAssets() {

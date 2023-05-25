@@ -2,7 +2,9 @@ var canvas, ctx;
 
 //sprites
 var water, gras, brick;
-var sprites_up, sprites_down, sprites_right, sprites_left, sprites_mirrored;
+var sprites_up, sprites_down, sprites_right,
+    sprites_left, sprites_mirrored,
+    sprites_down_mirrored, sprites_left_mirrored;
 var turtles
 
 // score / time
@@ -67,23 +69,39 @@ Sprite.prototype.render = function() {
         ctx.drawImage(sprites_mirrored, 256 +Math.floor(frame_death % 4) * sprites_mirrored.width / 8, 64, sprites_mirrored.width / 8, 60, this.x, this.y, grid - gridGap, grid - gridGap);
     }
     else {
+        frame_frogger += 0.15;
         if (this.direction === 'up') {
 
-            if (frogger.secondstate === "jumping") {
-                frame_frogger += 0.03;
-                ctx.drawImage(sprites_up, Math.floor(frame_turtles % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+            if (this.secondstate === "jumping") {
+                ctx.drawImage(sprites_up, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
             } else {
                 ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
             }
         }
         else if (this.direction === 'down') {
-            ctx.drawImage(sprites_down, 452, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid- gridGap);
+
+            if(this.secondstate === "jumping") {
+                ctx.drawImage(sprites_down_mirrored, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 960, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+            } else {
+                ctx.drawImage(sprites_down, 452, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+            }
         }
         else if (this.direction === 'right') {
-            ctx.drawImage(sprites_right, 976, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+
+            if(this.secondstate === "jumping") {
+                ctx.drawImage(sprites_right, 960 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+            }
+            else {
+                ctx.drawImage(sprites_right, 976, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+            }
         }
         else {
-            ctx.drawImage(sprites_left, 0, 452, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+            if(this.secondstate === "jumping") {
+                ctx.drawImage(sprites_left_mirrored, 0 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+            }
+            else {
+                ctx.drawImage(sprites_left, 0, 452, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+            }
         }
 
     }
@@ -541,7 +559,9 @@ function preloadAssets() {
     sprites_down = addImage("sprites/frogger_sprites_down.png");
     sprites_right = addImage("sprites/frogger_sprites_right.png");
     sprites_left = addImage("sprites/frogger_sprites_left.png");
-    sprites_mirrored = addImage("sprites/frogger_sprites_mirrored.png");
+    sprites_mirrored = addImage("sprites/frogger_sprites_up_mirrored.png");
+    sprites_down_mirrored = addImage("sprites/frogger_sprites_down_mirrored.png");
+    sprites_left_mirrored = addImage("sprites/frogger_sprites_left_mirrored.png");
     turtles = addImage("sprites/turtles.png");
 
     const checkResources = function () {

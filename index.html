@@ -4,9 +4,15 @@
     <title>Frogger</title>
     <meta charset="UTF-8">
     <link href="css/style.css" rel="stylesheet">
-    <script  type="text/javascript" src="src/game.js"></script>
+    <script type="text/javascript" src="src/game.js"></script>
+    <script type="text/javascript" src="src/startscreen.js"></script>
 </head>
 <body>
-<canvas width="624" height="720" id="game"></canvas>
+<div class="nav" id="start-screen" style="display: block">
+    <button class="btn" id="start-game">Starte das Spiel</button>
+    <button class="btn">options</button>
+    <button class="btn">credits</button>
+</div>
+<canvas width="624" height="720" id="game" style="display: none"></canvas>
 </body>
 </html>

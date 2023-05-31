@@ -7,11 +7,14 @@ var sprites_up, sprites_down, sprites_right,
     sprites_down_mirrored, sprites_left_mirrored;
 var turtles
 
+//sounds
+var theme, jump;
+
 // score / time
 var score = 0;
 var playtime = 45;
 var remaining_time = 0;
-var start_time = new Date();
+var start_time;
 var lives = 6;
 
 const grid = 48;
@@ -69,7 +72,7 @@ Sprite.prototype.render = function() {
         ctx.drawImage(sprites_mirrored, 256 +Math.floor(frame_death % 4) * sprites_mirrored.width / 8, 64, sprites_mirrored.width / 8, 60, this.x, this.y, grid - gridGap, grid - gridGap);
     }
     else {
-        frame_frogger += 0.15;
+        frame_frogger += 0.3;
         if (this.direction === 'up') {
 
             if (this.secondstate === "jumping") {
@@ -121,12 +124,32 @@ var scoredFroggers = []
 
 //window.onload = init;
 
+function start() {
+    toggleScreen("start-screen", false);
+    toggleScreen("game", true);
+    init();
+    start_time = new Date();
+}
+
+function toggleScreen(id, toggle) {
+    let element = document.getElementById(id);
+    let display = (toggle) ? "block" : "none";
+    element.style.display = display;
+}
+
 function init() {
     canvas = document.getElementById("game");
     ctx = canvas.getContext("2d");
+    theme = addSound("sounds/FroggerTheme.mp3");
+    jump = addSound("sounds/jump.mp3");
     makeSprites();
-    preloadAssets();
+    window.requestAnimationFrame(gameLoop);
     loadSprites();
+    playTheme()
+}
+
+function playTheme() {
+    theme.play();
 }
 
 function makeSprites() {
@@ -469,9 +492,13 @@ function death() {
 function keyboardPressed(ev) {
     let id
     let end = 0;
+    let frame = 4;
     let timeout = 7;
 
-    if(frogger.state !== "dead" && frogger.secondstate !=="jumping") {
+
+
+    if(frogger.state !== "dead" && frogger.secondstate !== "jumping") {
+        playJump();
         //links
         frogger.secondstate = "jumping";
         if (ev.which === 37) {
@@ -482,9 +509,9 @@ function keyboardPressed(ev) {
                     frogger.secondstate = "solid"
                 }
                 else {
-                    frogger.x -= 2;
+                    frogger.x -= frame;
                 }
-                end += 2;
+                end += frame;
                 frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
             }, timeout)
         }
@@ -497,9 +524,9 @@ function keyboardPressed(ev) {
                     frogger.secondstate = "solid"
                 }
                 else {
-                    frogger.x += 2;
+                    frogger.x += frame;
                 }
-                end += 2;
+                end += frame;
                 frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
             }, timeout)
         }
@@ -512,9 +539,9 @@ function keyboardPressed(ev) {
                     frogger.secondstate = "solid"
                 }
                 else {
-                    frogger.y -= 2;
+                    frogger.y -= frame;
                 }
-                end += 2;
+                end += frame;
                 frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
             }, timeout)
             score += 10;
@@ -528,9 +555,9 @@ function keyboardPressed(ev) {
                     frogger.secondstate = "solid"
                 }
                 else {
-                    frogger.y += 2;
+                    frogger.y += frame;
                 }
-                end += 2;
+                end += frame;
                 frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
             }, timeout)
         }
@@ -539,7 +566,19 @@ function keyboardPressed(ev) {
    //frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
 }
 
-function preloadAssets() {
+function playJump() {
+    jump.pause();
+    jump.currentTime = 0;
+    jump.play();
+}
+
+const addSound = function (src) {
+    const sound = new Audio();
+    sound.src = src;
+    return sound;
+}
+
+function preloadTest() {
     let _toPreload = 0;
 
     const addImage = function (src) {
@@ -552,6 +591,8 @@ function preloadAssets() {
         }, false);
         return img;
     };
+
+    //sprites
     water = addImage("sprites/water.png");
     gras = addImage("sprites/gras.png");
     brick = addImage("sprites/brick.png")
@@ -564,14 +605,59 @@ function preloadAssets() {
     sprites_left_mirrored = addImage("sprites/frogger_sprites_left_mirrored.png");
     turtles = addImage("sprites/turtles.png");
 
+    //sounds
+    //jump = addSound("sounds/jump.mp3");
+
     const checkResources = function () {
-        if (_toPreload === 0)
-            window.requestAnimationFrame(gameLoop);
-        else
+        if (_toPreload === 0) {
+
+        }
+        else {
             setTimeout(checkResources, 200);
+        }
+    };
+    checkResources();
+}
+
+/*function preloadAssets() {
+    let _toPreload = 0;
+
+    const addImage = function (src) {
+        const img = new Image();
+        img.src = src;
+        _toPreload++;
+
+        img.addEventListener('load', function () {
+            _toPreload--;
+        }, false);
+        return img;
+    };
+
+    //sprites
+    water = addImage("sprites/water.png");
+    gras = addImage("sprites/gras.png");
+    brick = addImage("sprites/brick.png")
+    sprites_up = addImage("sprites/frogger_sprites_up.png");
+    sprites_down = addImage("sprites/frogger_sprites_down.png");
+    sprites_right = addImage("sprites/frogger_sprites_right.png");
+    sprites_left = addImage("sprites/frogger_sprites_left.png");
+    sprites_mirrored = addImage("sprites/frogger_sprites_up_mirrored.png");
+    sprites_down_mirrored = addImage("sprites/frogger_sprites_down_mirrored.png");
+    sprites_left_mirrored = addImage("sprites/frogger_sprites_left_mirrored.png");
+    turtles = addImage("sprites/turtles.png");
+
+    //sounds
+    //jump = addSound("sounds/jump.mp3");
+
+    const checkResources = function () {
+        if (_toPreload === 0) {
+        window.requestAnimationFrame(gameLoop);
+        }
+        else {
+            setTimeout(checkResources, 200);
+        }
     };
     checkResources();
 
-}
+}*/
 document.addEventListener("keydown", keyboardPressed)
-document.addEventListener("DOMContentLoaded", init);

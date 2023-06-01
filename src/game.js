@@ -492,7 +492,7 @@ function death() {
 function keyboardPressed(ev) {
     let id
     let end = 0;
-    let frame = 4;
+    let frame = 3;
     let timeout = 7;
 
 

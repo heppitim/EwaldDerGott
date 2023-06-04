@@ -11,24 +11,31 @@ var turtles
 var theme, jump;
 
 // score / time
-var score = 0;
+var score = null;
 var playtime = 45;
 var remaining_time = 0;
 var start_time;
-var lives = 6;
+var lives = null;
 
+// Board
 const grid = 48;
 const gridGap = 10;
 
+// Frames
 var frame_frogger = 0.2
 var frame_turtles= 0.2;
 var frame_death = 0.2;
 
-var test = 0;
-
-
 const rows = [];
 var patterns;
+
+var loop = null;
+
+// Highscore
+const NO_OF_HIGH_SCORES = 10;
+const HIGH_SCORES = 'highScores'
+const highScoreString = localStorage.getItem(HIGH_SCORES);
+const highScores = JSON.parse(highScoreString) ?? [];
 
 
 function Sprite(props) {
@@ -127,8 +134,27 @@ var scoredFroggers = []
 function start() {
     toggleScreen("start-screen", false);
     toggleScreen("game", true);
+    toggleScreen("gameover-screen", false);
     init();
+
+    this.loop = setInterval(() => {
+        draw();
+        update();
+    }, 1000/60);
+}
+function stopGame() {
+    toggleScreen("start-screen", false);
+    toggleScreen("game", false);
+    toggleScreen("gameover-screen", true);
+    clearInterval(loop);
+    stopTheme();
+    checkHighScore(score);
+}
+
+function restartStats() {
     start_time = new Date();
+    lives = 6
+    score = 0;
 }
 
 function toggleScreen(id, toggle) {
@@ -143,13 +169,18 @@ function init() {
     theme = addSound("sounds/FroggerTheme.mp3");
     jump = addSound("sounds/jump.mp3");
     makeSprites();
-    window.requestAnimationFrame(gameLoop);
     loadSprites();
     playTheme()
+    restartStats();
 }
 
 function playTheme() {
     theme.play();
+}
+
+function stopTheme() {
+    theme.pause();
+    theme.currentTime = 0;
 }
 
 function makeSprites() {
@@ -301,30 +332,50 @@ function loadSprites() {
 function gameLoop() {
     draw()
     window.requestAnimationFrame(gameLoop);
+    if(lives <= 0) {
+        stopGame();
+    }
 }
 
 function draw() {
     ctx.clearRect(0,0, canvas.width, canvas.height);
     drawTime();
-    drawScore();
+    drawScores();
     drawLives();
     drawBackground();
     updateAndDraw();
     drawFrogger();
 }
 
+function update() {
+    updateTime()
+    if(lives <= 0 || remaining_time <= 0) {
+        stopGame()
+    }
+}
+
+
 function drawTime() {
-    var current_time = new Date();
-    remaining_time = playtime - Math.floor((current_time.getTime() - start_time.getTime()) / 1000);
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
     ctx.fillText("Time: " + remaining_time, grid * 10, grid*15 - 12);
 }
 
-function drawScore() {
+function updateTime () {
+    const current_time = new Date();
+    remaining_time = playtime - Math.floor((current_time.getTime() - start_time.getTime()) / 1000);
+}
+
+function drawScores() {
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
     ctx.fillText("Score: " + score, 10, 34);
+    drawHIScore();
+}
+
+function drawHIScore () {
+    const highScores = JSON.parse(localStorage.getItem(HIGH_SCORES)) ?? [];
+    ctx.fillText("HI-Score: " + highScores.at(0).score, 350, 34);
 }
 
 function drawLives() {
@@ -570,6 +621,32 @@ function playJump() {
     jump.pause();
     jump.currentTime = 0;
     jump.play();
+}
+
+function checkHighScore(score) {
+    const highScores = JSON.parse(localStorage.getItem(HIGH_SCORES)) ?? [];
+    const lowestScore = highScores[NO_OF_HIGH_SCORES - 1]?.score ?? 0;
+
+    if (score > lowestScore) {
+        saveHighScore(score, highScores);
+    }
+}
+
+function saveHighScore(score, highScores) {
+    const name = prompt('You got a highscore! Enter name:');
+    const newScore = { score, name };
+
+    // 1. Add to list
+    highScores.push(newScore);
+
+    // 2. Sort the list
+    highScores.sort((a, b) => b.score - a.score);
+
+    // 3. Select new list
+    highScores.splice(NO_OF_HIGH_SCORES);
+
+    // 4. Save to local storage
+    localStorage.setItem(HIGH_SCORES, JSON.stringify(highScores));
 }
 
 const addSound = function (src) {

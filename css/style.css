@@ -10,30 +10,64 @@ body {
     justify-content: center;
 }
 
+.nav {
+    position:relative;
+    width:350px;
+    margin:auto;
+    overflow:hidden;
+    background-color:#000046;
+    height:50%;
+    border: solid 1px transparent;
+    border-radius: 10px;
+}
+
+.frogger p {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 70px;
+    font-family: 'OCR A Std', monospace;
+    line-height: 120px;
+    text-align: center;
+    text-shadow: 2px 2px #d6df14;
+    color: #1ec201;
+}
+
 .btn {
-    color: white;
+    color: #d6df14;
     display: flex;
     justify-content: center;
     text-align: center;
     cursor: pointer;
     padding: 25px 80px;
     margin: 25px 30px;
+    font-family: 'OCR A Std', monospace;
+    font-size: 20px;
+    text-shadow: 1px 1px #cbd694;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
     position: relative;
-    background-color: rgb(38, 38, 38);
+    background-color: black;
     border: solid 1px transparent;
     border-radius: 10px;
     width: 290px;
 }
 
-.nav {
-    position:relative;
-    width:350px;
-    margin:auto;
-    overflow:hidden;
-    background-color:#1d1d1d;
-    height:50%;
+.continue p {
+    margin-top: 0;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+    color: #1ec201;
+    font-family: 'OCR A Std', monospace;
+    text-shadow: 2px 2px #cbd694;
+    text-transform: uppercase;
 }
 
+#img-gameover {
+    margin: 10px;
+    width: 330px;
+    justify-content: center;
+    text-align: center;
+}

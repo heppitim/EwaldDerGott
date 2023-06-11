@@ -16,7 +16,7 @@ body {
     margin:auto;
     overflow:hidden;
     background-color:#000046;
-    height:50%;
+    height:auto;
     border: solid 1px transparent;
     border-radius: 10px;
 }
@@ -30,6 +30,27 @@ body {
     text-align: center;
     text-shadow: 2px 2px #d6df14;
     color: #1ec201;
+}
+
+
+
+.opt label {
+    margin-left: 30px;
+    font-size: 30px;
+    font-family: 'OCR A Std', monospace;
+    line-height: 120px;
+    justify-content: center;
+    text-align: center;
+    text-shadow: 1px 1px #cbd694;
+    color: #d6df14;
+}
+
+.opt input {
+    height: 20px;
+    width: 20px;
+    float: right;
+    margin-right: 30px;
+    margin-top: 48px;
 }
 
 .btn {
@@ -65,9 +86,33 @@ body {
     text-transform: uppercase;
 }
 
+.character {
+    justify-content: center;
+    text-align: center;
+}
+
 #img-gameover {
     margin: 10px;
     width: 330px;
     justify-content: center;
     text-align: center;
+}
+
+.input-hidden {
+    position: absolute;
+    left: -9999px;
+}
+
+input[type=radio]:checked + label>img {
+    border: 1px solid rgb(157, 255, 0);
+    box-shadow: 0 0 3px 3px #cbd694;
+    margin: 20px;
+}
+
+/* Stuff after this is only to make things more pretty */
+input[type=radio] + label>img {
+    border: 1px rgb(0, 0, 0);
+    padding: 10px;
+
+    transition: 500ms all;
 }

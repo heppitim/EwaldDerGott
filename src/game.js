@@ -8,7 +8,7 @@ var sprites_up, sprites_down, sprites_right,
 var turtles
 
 //sounds
-var theme, jump;
+var theme, jump, death;
 
 // score / time
 var score = null;
@@ -30,6 +30,7 @@ const rows = [];
 var patterns;
 
 var loop = null;
+var scored = false;
 
 // Highscore
 const NO_OF_HIGH_SCORES = 10;
@@ -37,6 +38,10 @@ const HIGH_SCORES = 'highScores'
 const highScoreString = localStorage.getItem(HIGH_SCORES);
 const highScores = JSON.parse(highScoreString) ?? [];
 
+// Options and Character
+const SAFE_MUSIC = 'music';
+const SAFE_SOUND = 'sound';
+const SAFE_PLAYER = 'player';
 
 function Sprite(props) {
     // shortcut for assigning all object properties to the sprite
@@ -71,7 +76,12 @@ Sprite.prototype.render = function() {
         ctx.drawImage(sprites_down, 450, 584, sprites_down.width / 8 -1, 48, this.x, this.y, this.size, grid - gridGap);
     }
     else if (this.name === 'scoredFrog') {
-        ctx.drawImage(sprites_up, 262, 8, sprites_up.width / 8 -12, 54, this.x, this.y, grid, grid- 10);
+        if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "green") {
+            ctx.drawImage(sprites_up, 262, 8, sprites_up.width / 8 -12, 54, this.x, this.y, grid, grid- 10);
+        }
+        else {
+            ctx.drawImage(sprites_up, 262, 520, sprites_up.width / 8 -12, 54, this.x, this.y, grid, grid- 10);
+        }
     }
     else if (this.state === 'dead') {
         frame_death += 0.03;
@@ -80,39 +90,112 @@ Sprite.prototype.render = function() {
     }
     else {
         frame_frogger += 0.3;
-        if (this.direction === 'up') {
 
-            if (this.secondstate === "jumping") {
-                ctx.drawImage(sprites_up, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
-            } else {
-                ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+        if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "green") {
+            if (this.direction === 'up') {
+
+                if (this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_up, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
             }
-        }
-        else if (this.direction === 'down') {
+            else if (this.direction === 'down') {
 
-            if(this.secondstate === "jumping") {
-                ctx.drawImage(sprites_down_mirrored, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 960, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
-            } else {
-                ctx.drawImage(sprites_down, 452, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_down_mirrored, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 960, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_down_mirrored, 0, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
             }
-        }
-        else if (this.direction === 'right') {
+            else if (this.direction === 'right') {
 
-            if(this.secondstate === "jumping") {
-                ctx.drawImage(sprites_right, 960 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_right, 960 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_right, 976, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
             }
             else {
-                ctx.drawImage(sprites_right, 976, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_left_mirrored, 0 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_left_mirrored, 0, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
             }
-        }
-        else {
-            if(this.secondstate === "jumping") {
-                ctx.drawImage(sprites_left_mirrored, 0 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+        } else if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "purple") {
+            if (this.direction === 'up') {
+
+                if (this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_up, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 512, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_up, 0, 512, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
+            }
+            else if (this.direction === 'down') {
+
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_down_mirrored, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 450, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_down_mirrored, 0, 466, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
+            }
+            else if (this.direction === 'right') {
+
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_right, 450 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_right, 464, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
             }
             else {
-                ctx.drawImage(sprites_left, 0, 452, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_left_mirrored, 512 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_left_mirrored, 512, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
+            }
+        } else {
+            if (this.direction === 'up') {
+
+                if (this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_up, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 576, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_up, 0, 576, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
+            }
+            else if (this.direction === 'down') {
+
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_down_mirrored, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 384, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_down_mirrored, 0, 400, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
+            }
+            else if (this.direction === 'right') {
+
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_right, 384 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_right, 400, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
+            }
+            else {
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_left_mirrored, 576 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_left_mirrored, 576, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
             }
         }
+
+
 
     }
 }
@@ -128,8 +211,6 @@ const frogger = new Sprite({
     secondstate: 'solid'
 });
 var scoredFroggers = []
-
-//window.onload = init;
 
 function start() {
     toggleScreen("start-screen", false);
@@ -166,11 +247,11 @@ function toggleScreen(id, toggle) {
 function init() {
     canvas = document.getElementById("game");
     ctx = canvas.getContext("2d");
-    theme = addSound("sounds/FroggerTheme.mp3");
-    jump = addSound("sounds/jump.mp3");
     makeSprites();
     loadSprites();
-    playTheme()
+    if(JSON.parse(localStorage.getItem(SAFE_MUSIC))) {
+        playTheme();
+    }
     restartStats();
 }
 
@@ -191,7 +272,6 @@ function makeSprites() {
         // log
         {
             spacing: [2],      // how many grid spaces between each obstacle
-            color: '#c55843',  // color of the obstacle
             size: grid * 4,    // width (rect) / diameter (circle) of the obstacle
             name: 'log',       // shape of the obstacle (rect or circle)
             speed: 0.75        // how fast the obstacle moves and which direction
@@ -200,7 +280,6 @@ function makeSprites() {
         // turtle
         {
             spacing: [0,2,0,2,0,2,0,4],
-            color: '#de0004',
             size: grid,
             name: 'turtle',
             speed: -1
@@ -209,7 +288,6 @@ function makeSprites() {
         // long log
         {
             spacing: [2],
-            color: '#c55843',
             size: grid * 7,
             name: 'log',
             speed: 1
@@ -218,7 +296,6 @@ function makeSprites() {
         // log
         {
             spacing: [3],
-            color: '#c55843',
             size: grid * 3,
             name: 'log',
             speed: 0.5
@@ -227,7 +304,6 @@ function makeSprites() {
         // turtle
         {
             spacing: [0,0,1.5],
-            color: '#de0004',
             size: grid,
             name: 'turtle',
             speed: -1
@@ -239,7 +315,6 @@ function makeSprites() {
         // truck
         {
             spacing: [3,8],
-            color: '#c2c4da',
             size: grid * 2,
             name: 'truck',
             speed: -1
@@ -248,7 +323,6 @@ function makeSprites() {
         // fast car
         {
             spacing: [2,10],
-            color: '#c2c4da',
             size: grid,
             name: 'fast car',
             speed: 2.0
@@ -257,7 +331,6 @@ function makeSprites() {
         // car
         {
             spacing: [3,3,7],
-            color: '#de3cdd',
             size: grid,
             name: 'car 2',
             speed: -0.75
@@ -266,7 +339,6 @@ function makeSprites() {
         // bulldozer
         {
             spacing: [3,3,7],
-            color: '#0bcb00',
             size: grid,
             name: 'bulldozer',
             speed: 0.5
@@ -275,7 +347,6 @@ function makeSprites() {
         // car
         {
             spacing: [4],
-            color: '#e5e401',
             size: grid,
             name: 'car 1',
             speed: -0.5
@@ -329,26 +400,18 @@ function loadSprites() {
     }
 }
 
-function gameLoop() {
-    draw()
-    window.requestAnimationFrame(gameLoop);
-    if(lives <= 0) {
-        stopGame();
-    }
-}
-
 function draw() {
     ctx.clearRect(0,0, canvas.width, canvas.height);
     drawTime();
     drawScores();
     drawLives();
     drawBackground();
-    updateAndDraw();
-    drawFrogger();
 }
 
 function update() {
-    updateTime()
+    updateTime();
+    updateAndDraw();
+    drawFrogger();
     if(lives <= 0 || remaining_time <= 0) {
         stopGame()
     }
@@ -416,6 +479,9 @@ function updateAndDraw() {
 
         for (let i = 0; i < row.length; i++) {
             const sprite = row[i]
+            if(scored) {
+                updateSpeed(sprite);
+            }
             sprite.x += sprite.speed;
             sprite.render();
 
@@ -459,6 +525,16 @@ function updateAndDraw() {
             }
         }
     }
+    scored = false;
+}
+
+function updateSpeed(sprite) {
+    if(sprite.speed < 0) {
+        sprite.speed -= 0.1;
+    }
+    else {
+        sprite.speed += 0.1;
+    }
 }
 
 function drawFrogger() {
@@ -466,10 +542,7 @@ function drawFrogger() {
     frogger.render();
 
     // if all Frogs are Scored, reset
-    if(scoredFroggers.length === 5) {
-        scoredFroggers = [];
-        score += 1000;
-    }
+
     scoredFroggers.forEach(frog => frog.render());
 
     // check for collision with all sprites in the same row as frogger
@@ -488,7 +561,7 @@ function drawFrogger() {
 
             // reset frogger if got hit by car
             if (froggerRow > rows.length / 2 && frogger.state !== "dead" && frogger.secondstate !== "jumping") {
-                death();
+                playerDeath();
             }
             // move frogger along with obstacle
             else if (frogger.state !== "dead" && frogger.secondstate !== "jumping") {
@@ -514,22 +587,35 @@ function drawFrogger() {
             }));
             score += 50 + remaining_time / 2 * 10;
             start_time = new Date();
+            updateTimeAndSprites();
         }
 
         // reset frogger if not on obstacle in river
-        if (froggerRow < rows.length / 2 - 1 && frogger.state !== "dead" && frogger.secondstate !== "jumping") {
+        if (froggerRow < rows.length / 2 - 1  && frogger.state !== "dead" && frogger.secondstate !== "jumping") {
             if(froggerRow === 0) {
                 frogger.x = grid * 6;
                 frogger.y = grid * 13;
             } else {
-                death();
+                playerDeath();
             }
         }
     }
+    if(scoredFroggers.length === 5) {
+        scoredFroggers = [];
+        score += 1000;
+    }
 }
 
-function death() {
+function updateTimeAndSprites () {
+    if (playtime >= 25) {
+        playtime -= 1;
+    }
+    scored = true;
+}
+
+function playerDeath() {
     frogger.state = "dead";
+    playSound(death);
     setTimeout(function () {
         frame_death = 0;
         frogger.x = grid * 6;
@@ -546,81 +632,82 @@ function keyboardPressed(ev) {
     let frame = 3;
     let timeout = 7;
 
-
-
     if(frogger.state !== "dead" && frogger.secondstate !== "jumping") {
-        playJump();
-        //links
-        frogger.secondstate = "jumping";
-        if (ev.which === 37) {
-            frogger.direction = 'left';
-            id = setInterval(function () {
-                if(end === 48) {
-                    clearInterval(id);
-                    frogger.secondstate = "solid"
-                }
-                else {
-                    frogger.x -= frame;
-                }
-                end += frame;
-                frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
-            }, timeout)
-        }
-        //rechts
-        else if (ev.which === 39) {
-            frogger.direction = 'right';
-            id = setInterval(function () {
-                if(end === 48) {
-                    clearInterval(id);
-                    frogger.secondstate = "solid"
-                }
-                else {
-                    frogger.x += frame;
-                }
-                end += frame;
-                frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
-            }, timeout)
-        }
-        //hoch
-        else if (ev.which === 38) {
-            frogger.direction = 'up'
-            id = setInterval(function () {
-                if(end === 48) {
-                    clearInterval(id);
-                    frogger.secondstate = "solid"
-                }
-                else {
-                    frogger.y -= frame;
-                }
-                end += frame;
-                frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
-            }, timeout)
-            score += 10;
-        }
-        //runter
-        else if (ev.which === 40) {
-            frogger.direction = 'down';
-            id = setInterval(function () {
-                if(end === 48) {
-                    clearInterval(id);
-                    frogger.secondstate = "solid"
-                }
-                else {
-                    frogger.y += frame;
-                }
-                end += frame;
-                frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
-            }, timeout)
+        if(ev.which === 37 || ev.which === 38 || ev.which === 39 || ev.which === 40) {
+            playSound(jump);
+            frogger.secondstate = "jumping";
+
+            //links
+            if (ev.which === 37) {
+                frogger.direction = 'left';
+                id = setInterval(function () {
+                    if(end === 48) {
+                        clearInterval(id);
+                        frogger.secondstate = "solid"
+                    }
+                    else {
+                        frogger.x -= frame;
+                    }
+                    end += frame;
+                    frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
+                }, timeout)
+            }
+            //rechts
+            else if (ev.which === 39) {
+                frogger.direction = 'right';
+                id = setInterval(function () {
+                    if(end === 48) {
+                        clearInterval(id);
+                        frogger.secondstate = "solid"
+                    }
+                    else {
+                        frogger.x += frame;
+                    }
+                    end += frame;
+                    frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
+                }, timeout)
+            }
+            //hoch
+            else if (ev.which === 38) {
+                frogger.direction = 'up'
+                id = setInterval(function () {
+                    if(end === 48) {
+                        clearInterval(id);
+                        frogger.secondstate = "solid"
+                    }
+                    else {
+                        frogger.y -= frame;
+                    }
+                    end += frame;
+                    frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
+                }, timeout)
+                score += 10;
+            }
+            //runter
+            else if (ev.which === 40) {
+                frogger.direction = 'down';
+                id = setInterval(function () {
+                    if(end === 48) {
+                        clearInterval(id);
+                        frogger.secondstate = "solid"
+                    }
+                    else {
+                        frogger.y += frame;
+                    }
+                    end += frame;
+                    frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
+                }, timeout)
+            }
         }
     }
-   //frogger.y = Math.min( Math.max(grid, frogger.y), canvas.height - grid * 2);
-   //frogger.x = Math.min( Math.max(0, frogger.x), canvas.width - grid);
 }
 
-function playJump() {
-    jump.pause();
-    jump.currentTime = 0;
-    jump.play();
+function playSound(sound) {
+    if (JSON.parse(localStorage.getItem(SAFE_SOUND))) {
+        sound.pause();
+        sound.currentTime = 0;
+        sound.play();
+    }
 }
 
 function checkHighScore(score) {
@@ -655,8 +742,9 @@ const addSound = function (src) {
     return sound;
 }
 
-function preloadTest() {
+function preloadAssets() {
     let _toPreload = 0;
+    let _toPreloadSound = 0;
 
     const addImage = function (src) {
         const img = new Image();
@@ -668,6 +756,16 @@ function preloadTest() {
         }, false);
         return img;
     };
+
+    const addSound = function (src) {
+        const sound = new Audio();
+        sound.src = src;
+        _toPreloadSound++;
+        sound.addEventListener('load', function () {
+            _toPreloadSound--;
+        }, false)
+        return sound;
+    }
 
     //sprites
     water = addImage("sprites/water.png");
@@ -683,10 +781,12 @@ function preloadTest() {
     turtles = addImage("sprites/turtles.png");
 
     //sounds
-    //jump = addSound("sounds/jump.mp3");
+    theme = addSound("sounds/FroggerTheme.mp3");
+    jump = addSound("sounds/jump.mp3");
+    death = addSound("sounds/deathsound.mp3");
 
     const checkResources = function () {
-        if (_toPreload === 0) {
+        if (_toPreload === 0 && _toPreloadSound === 0) {
 
         }
         else {
@@ -696,45 +796,4 @@ function preloadTest() {
     checkResources();
 }
 
-/*function preloadAssets() {
-    let _toPreload = 0;
-
-    const addImage = function (src) {
-        const img = new Image();
-        img.src = src;
-        _toPreload++;
-
-        img.addEventListener('load', function () {
-            _toPreload--;
-        }, false);
-        return img;
-    };
-
-    //sprites
-    water = addImage("sprites/water.png");
-    gras = addImage("sprites/gras.png");
-    brick = addImage("sprites/brick.png")
-    sprites_up = addImage("sprites/frogger_sprites_up.png");
-    sprites_down = addImage("sprites/frogger_sprites_down.png");
-    sprites_right = addImage("sprites/frogger_sprites_right.png");
-    sprites_left = addImage("sprites/frogger_sprites_left.png");
-    sprites_mirrored = addImage("sprites/frogger_sprites_up_mirrored.png");
-    sprites_down_mirrored = addImage("sprites/frogger_sprites_down_mirrored.png");
-    sprites_left_mirrored = addImage("sprites/frogger_sprites_left_mirrored.png");
-    turtles = addImage("sprites/turtles.png");
-
-    //sounds
-    //jump = addSound("sounds/jump.mp3");
-
-    const checkResources = function () {
-        if (_toPreload === 0) {
-        window.requestAnimationFrame(gameLoop);
-        }
-        else {
-            setTimeout(checkResources, 200);
-        }
-    };
-    checkResources();
-
-}*/
 document.addEventListener("keydown", keyboardPressed)

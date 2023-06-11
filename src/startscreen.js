@@ -1,9 +1,25 @@
 window.addEventListener("DOMContentLoaded", (event) => {
-    const button = document.getElementById("start-game");
-    if(button) {
-        button.addEventListener("click", function () {
-            preloadTest();
+    const startGame = document.getElementById("start-game");
+    const options = document.getElementById("options")
+    const character = document.getElementById("character")
+    preloadAssets();
+    if(startGame) {
+        startGame.addEventListener("click", function () {
             start();
+        });
+    }
+
+    if (options) {
+        options.addEventListener("click", function () {
+            toggleScreen("start-screen", false);
+            toggleScreen("option-screen", true);
+        });
+    }
+
+    if (character) {
+        character.addEventListener("click", function () {
+            toggleScreen("start-screen", false);
+            toggleScreen("character-screen", true);
         })
     }
 })

@@ -6,6 +6,8 @@
     <link href="css/style.css" rel="stylesheet">
     <script type="text/javascript" src="src/game.js"></script>
     <script type="text/javascript" src="src/startscreen.js"></script>
+    <script type="text/javascript" src="src/options.js"></script>
+    <script type="text/javascript" src="src/character.js"></script>
     <script type="text/javascript" src="src/gameover.js"></script>
 </head>
 <body>
@@ -13,8 +15,52 @@
         <div class="frogger"> <p> FROGGER </p> </div>
         <div>
             <button class="btn" id="start-game">Starte das Spiel</button>
-            <button class="btn">options</button>
-            <button class="btn">credits</button>
+            <button class="btn" id="character">Spieler</button>
+            <button class="btn" id="options">options</button>
+        </div>
+    </div>
+    <div class="nav" id="character-screen" style="display: none">
+        <div class="frogger"> <p> Spieler </p> </div>
+        <div class="character">
+            <input
+                    type="radio" name="character"
+                    id="green" value="green" class="input-hidden"/>
+            <label for="green">
+                <img
+                        src="sprites/Green-Frog.png"
+                        alt="green" />
+            </label>
+
+            <input
+                    type="radio" name="character"
+                    id="purple" value="purple" class="input-hidden"/>
+            <label for="purple">
+                <img
+                        src="sprites/Purple-Frog.png"
+                        alt="purple"/>
+            </label>
+
+            <input
+                    type="radio" name="character"
+                    id="purple_yellow" value="purple_yellow" class="input-hidden"/>
+            <label for="purple_yellow">
+                <img
+                        src="sprites/PurYel-Frog.png"
+                        alt="puryel"/>
+            </label>
+            <button class="btn" id="back2">Zurück</button>
+        </div>
+    </div>
+    <div class="nav" id="option-screen" style="display: none">
+        <div class="frogger"> <p> Optionen </p> </div>
+        <div>
+            <div class="opt">
+                <label for="music">Musik?</label>
+                <input type="checkbox" id="music" value="yes"><br>
+                <label for="sounds">Sounds?</label>
+                <input type="checkbox" id="sounds" value="yes">
+            </div>
+            <button class="btn" id="back">Zurück</button>
         </div>
     </div>
     <canvas width="624" height="720" id="game" style="display: none"></canvas>

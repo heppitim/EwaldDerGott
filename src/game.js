@@ -43,6 +43,8 @@ const SAFE_MUSIC = 'music';
 const SAFE_SOUND = 'sound';
 const SAFE_PLAYER = 'player';
 
+var is_scored = false;
+
 function Sprite(props) {
     // shortcut for assigning all object properties to the sprite
     Object.assign(this, props);
@@ -236,6 +238,8 @@ function restartStats() {
     start_time = new Date();
     lives = 6
     score = 0;
+    playtime = 45;
+    scoredFroggers = [];
 }
 
 function toggleScreen(id, toggle) {
@@ -548,10 +552,6 @@ function drawFrogger() {
     frogger.render();
 
     // if all Frogs are Scored, reset
-    if(scoredFroggers.length === 5) {
-        scoredFroggers = [];
-        score += 1000;
-    }
 
     scoredFroggers.forEach(frog => frog.render());
 
@@ -595,16 +595,22 @@ function drawFrogger() {
                 y: frogger.y + 5,
                 name: 'scoredFrog'
             }));
+            if(scoredFroggers.length === 5) {
+                scoredFroggers = [];
+                score += 1000;
+            }
             score += 50 + remaining_time / 2 * 10;
             start_time = new Date();
             updateTimeAndSprites();
+            is_scored = true
         }
 
         // reset frogger if not on obstacle in river
         if (froggerRow < rows.length / 2 - 1  && frogger.state !== "dead" && frogger.secondstate !== "jumping") {
-            if(froggerRow === 0) {
+            if(is_scored) {
                 frogger.x = grid * 6;
                 frogger.y = grid * 13;
+                is_scored = false;
             } else {
                 playerDeath();
             }
@@ -726,7 +732,7 @@ function checkHighScore(score) {
 }
 
 function saveHighScore(score, highScores) {
-    const name = prompt('You got a highscore! Enter name:');
+    const name = "Player 1"
     const newScore = { score, name };
 
     // 1. Add to list

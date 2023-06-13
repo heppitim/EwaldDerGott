@@ -548,6 +548,10 @@ function drawFrogger() {
     frogger.render();
 
     // if all Frogs are Scored, reset
+    if(scoredFroggers.length === 5) {
+        scoredFroggers = [];
+        score += 1000;
+    }
 
     scoredFroggers.forEach(frog => frog.render());
 
@@ -605,10 +609,6 @@ function drawFrogger() {
                 playerDeath();
             }
         }
-    }
-    if(scoredFroggers.length === 5) {
-        scoredFroggers = [];
-        score += 1000;
     }
 }
 

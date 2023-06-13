@@ -438,7 +438,13 @@ function drawScores() {
 
 function drawHIScore () {
     const highScores = JSON.parse(localStorage.getItem(HIGH_SCORES)) ?? [];
-    ctx.fillText("HI-Score: " + highScores.at(0).score, 350, 34);
+    console.log(highScores.length)
+    if(highScores.length !== 0) {
+        ctx.fillText("HI-Score: " + highScores.at(0).score, 350, 34);
+    } else {
+        ctx.fillText("HI-Score: 0", 350, 34);
+    }
+
 }
 
 function drawLives() {

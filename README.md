@@ -25,11 +25,11 @@ Die Canvas Demo aus Teams
 Der Großteil der Sprites, kommt von folgender Seite: <br>
 https://www.deviantart.com/sketchbattleart/art/Frogger-Sprite-sheet-701348142
 
-##Bugs: <br>
+## Bugs: <br>
 Derzeit sind keine großen Bugs bekannt. <br>
 Wenn du welche finden solltest gerne melden
 
-##Browserkompatibiltät:
+## Browserkompatibiltät:
 Mit Google Chrome läuft das Spiel am flüssigsten. <br>
 Andere Browers sind auch möglich, jedoch mit Performance Problemen.
 
@@ -37,7 +37,7 @@ Andere Browers sind auch möglich, jedoch mit Performance Problemen.
 Es wird die MIT Lizenz verwendet.
 
 ## Lizenzen von 3rdParty Komponenten:
-[Basic Frogger] (https://de.wikipedia.org/wiki/Frogger) nutzt CC0 1.0 Universal und ist daher kostenlos nutzbar.
+Der Code von [Basic Frogger] (https://de.wikipedia.org/wiki/Frogger) nutzt CC0 1.0 Universal und ist daher kostenlos nutzbar.
 
 
 ## Spielanleitung

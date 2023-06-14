@@ -23,8 +23,11 @@ const gridGap = 10;
 
 // Frames
 var frame_frogger = 0.2
+var frogger_animation_speed = 0.3
 var frame_turtles= 0.2;
+var turtle_animation_speed = 0.002
 var frame_death = 0.2;
+var death_animation_speed = 0.03
 
 const rows = [];
 var patterns;
@@ -33,7 +36,7 @@ var loop = null;
 var scored = false;
 
 // Highscore
-const NO_OF_HIGH_SCORES = 10;
+const NO_OF_HIGH_SCORES = 1;
 const HIGH_SCORES = 'highScores'
 const highScoreString = localStorage.getItem(HIGH_SCORES);
 const highScores = JSON.parse(highScoreString) ?? [];
@@ -51,14 +54,13 @@ function Sprite(props) {
 }
 Sprite.prototype.render = function() {
 
-     //Slowdown Animation
-    // draw a rectangle sprite
+     //draw the different Sprites
 
     if (this.name === 'log') {
         ctx.drawImage(sprites_up, 0, 210, sprites_up.width / 2.66, 40, this.x, this.y, this.size, grid - gridGap);
     }
     else if (this.name === 'turtle') {
-        frame_turtles += 0.002;
+        frame_turtles += turtle_animation_speed;
 
         ctx.drawImage(turtles, Math.floor(frame_turtles % 4) * turtles.width / 4, 0, turtles.width / 4, 55, this.x, this.y, grid - gridGap, grid - gridGap);
     }
@@ -86,48 +88,14 @@ Sprite.prototype.render = function() {
         }
     }
     else if (this.state === 'dead') {
-        frame_death += 0.03;
+        frame_death += death_animation_speed;
 
         ctx.drawImage(sprites_mirrored, 256 +Math.floor(frame_death % 4) * sprites_mirrored.width / 8, 64, sprites_mirrored.width / 8, 60, this.x, this.y, grid - gridGap, grid - gridGap);
     }
     else {
-        frame_frogger += 0.3;
+        frame_frogger += frogger_animation_speed ;
 
-        if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "green") {
-            if (this.direction === 'up') {
-
-                if (this.secondstate === "jumping") {
-                    ctx.drawImage(sprites_up, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
-                } else {
-                    ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
-                }
-            }
-            else if (this.direction === 'down') {
-
-                if(this.secondstate === "jumping") {
-                    ctx.drawImage(sprites_down_mirrored, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 960, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
-                } else {
-                    ctx.drawImage(sprites_down_mirrored, 0, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
-                }
-            }
-            else if (this.direction === 'right') {
-
-                if(this.secondstate === "jumping") {
-                    ctx.drawImage(sprites_right, 960 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
-                }
-                else {
-                    ctx.drawImage(sprites_right, 976, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
-                }
-            }
-            else {
-                if(this.secondstate === "jumping") {
-                    ctx.drawImage(sprites_left_mirrored, 0 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
-                }
-                else {
-                    ctx.drawImage(sprites_left_mirrored, 0, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
-                }
-            }
-        } else if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "purple") {
+        if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "purple") {
             if (this.direction === 'up') {
 
                 if (this.secondstate === "jumping") {
@@ -161,7 +129,7 @@ Sprite.prototype.render = function() {
                     ctx.drawImage(sprites_left_mirrored, 512, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
                 }
             }
-        } else {
+        } else if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "purple_yellow") {
             if (this.direction === 'up') {
 
                 if (this.secondstate === "jumping") {
@@ -195,10 +163,41 @@ Sprite.prototype.render = function() {
                     ctx.drawImage(sprites_left_mirrored, 576, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
                 }
             }
+        } else { // green
+            if (this.direction === 'up') {
+
+                if (this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_up, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 0, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_up, 0, 0, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
+            }
+            else if (this.direction === 'down') {
+
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_down_mirrored, Math.floor(frame_frogger % 4) * sprites_up.width / 8, 960, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                } else {
+                    ctx.drawImage(sprites_down_mirrored, 0, 976, sprites_up.width / 8 - 4, 48, this.x, this.y, grid, grid - gridGap);
+                }
+            }
+            else if (this.direction === 'right') {
+
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_right, 960 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_right, 976, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
+            }
+            else {
+                if(this.secondstate === "jumping") {
+                    ctx.drawImage(sprites_left_mirrored, 0 , Math.floor(frame_frogger % 4) * sprites_right.height / 8, sprites_up.width / 8 - 4, 60, this.x, this.y, grid, grid - gridGap);
+                }
+                else {
+                    ctx.drawImage(sprites_left_mirrored, 0, 0, sprites_up.width / 8 - 16, 60, this.x, this.y, grid, grid- gridGap);
+                }
+            }
         }
-
-
-
     }
 }
 
@@ -234,6 +233,7 @@ function stopGame() {
     checkHighScore(score);
 }
 
+// for restarting the game
 function restartStats() {
     start_time = new Date();
     lives = 6
@@ -242,10 +242,10 @@ function restartStats() {
     scoredFroggers = [];
 }
 
+// for changing screen
 function toggleScreen(id, toggle) {
     let element = document.getElementById(id);
-    let display = (toggle) ? "block" : "none";
-    element.style.display = display;
+    element.style.display = (toggle) ? "block" : "none";
 }
 
 function init() {
@@ -420,7 +420,6 @@ function update() {
         stopGame()
     }
 }
-
 
 function drawTime() {
     ctx.font = "30px Arial";

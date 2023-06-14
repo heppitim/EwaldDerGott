@@ -3,13 +3,13 @@
 ## Autor: 
 Tim Heppekausen 14.06.2023
 
-## Version: 
-1.0
+## Version: 1.0
 
+## Vorlage: 
 Dieses Programm setzt das Spiel Frogger auf Vorlage der Version von Konami um:<br>
 https://de.wikipedia.org/wiki/Frogger 
 
-##3rdParty Komponenten: 
+## 3rdParty Komponenten: 
 
 Die Grundfunktinonen des Spiels wurde von folgendem Git Repository übernommen:<br>
 https://gist.github.com/straker/82a4368849cbd441b05bd6a044f2b2d3
@@ -37,7 +37,7 @@ Andere Browers sind auch möglich, jedoch mit Performance Problemen.
 Es wird die MIT Lizenz verwendet.
 
 ## Lizenzen von 3rdParty Komponenten:
-Der Code von [Basic Frogger] (https://de.wikipedia.org/wiki/Frogger) nutzt CC0 1.0 Universal und ist daher kostenlos nutzbar.
+Der Code von [Basic Frogger](https://de.wikipedia.org/wiki/Frogger) nutzt CC0 1.0 Universal und ist daher kostenlos nutzbar.
 
 
 ## Spielanleitung

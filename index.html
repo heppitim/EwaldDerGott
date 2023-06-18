@@ -54,6 +54,30 @@
     <div class="nav" id="option-screen" style="display: none">
         <div class="frogger"> <p> Optionen </p> </div>
         <div>
+            <div class="gamemode-overlay">
+                <label>Spielmodus</label>
+                <div class="gamemode">
+                    <input
+                            type="radio" name="gamemode"
+                            id="normal" value="normal" class="input-hidden"/>
+                    <label for="normal" style="display: flex">
+                        <img
+                                src="sprites/Green-Frog.png"
+                                alt="green" />
+                        <span>Normal</span>
+                    </label>
+
+                    <input
+                            type="radio" name="gamemode"
+                            id="hard" value="hard" class="input-hidden"/>
+                    <label for="hard" style="display: flex">
+                        <img
+                                src="sprites/Hardmode.png"
+                                alt="hard"/>
+                        <span>Schwer</span>
+                    </label>
+                </div>
+            </div>
             <div class="opt">
                 <label for="music">Musik?</label>
                 <input type="checkbox" id="music" value="yes"><br>

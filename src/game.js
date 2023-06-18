@@ -42,6 +42,7 @@ const highScoreString = localStorage.getItem(HIGH_SCORES);
 const highScores = JSON.parse(highScoreString) ?? [];
 
 // Options and Character
+const GAME_MODE = 'gamemode';
 const SAFE_MUSIC = 'music';
 const SAFE_SOUND = 'sound';
 const SAFE_PLAYER = 'player';
@@ -409,6 +410,7 @@ function draw() {
     drawTime();
     drawScores();
     drawLives();
+    drawMode();
     drawBackground();
 }
 
@@ -424,7 +426,7 @@ function update() {
 function drawTime() {
     ctx.font = "30px Arial";
     ctx.fillStyle = "white";
-    ctx.fillText("Time: " + remaining_time, grid * 10, grid*15 - 12);
+    ctx.fillText("Time: " + remaining_time, grid * 10, grid*15 - 20);
 }
 
 function updateTime () {
@@ -441,7 +443,6 @@ function drawScores() {
 
 function drawHIScore () {
     const highScores = JSON.parse(localStorage.getItem(HIGH_SCORES)) ?? [];
-    console.log(highScores.length)
     if(highScores.length !== 0) {
         ctx.fillText("HI-Score: " + highScores.at(0).score, 350, 34);
     } else {
@@ -455,6 +456,17 @@ function drawLives() {
         let gap = 20 * i;
         ctx.drawImage(sprites_up, 64, 0, sprites_up.width / 8 - 4, 60, gap, grid * 14, 20, grid / 2);
     }
+}
+
+function drawMode (){
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    if(JSON.parse(localStorage.getItem(GAME_MODE)) === null) {
+        ctx.fillText("Mode: normal", grid * 4, grid*15 - 20);
+    } else {
+        ctx.fillText("Mode: " + JSON.parse(localStorage.getItem(GAME_MODE)), grid * 4, grid*15 - 20);
+    }
+
 }
 
 function drawBackground() {
@@ -594,14 +606,16 @@ function drawFrogger() {
                 y: frogger.y + 5,
                 name: 'scoredFrog'
             }));
+            score += 50 + remaining_time / 2 * 10;
+            start_time = new Date();
+            if(JSON.parse(localStorage.getItem(GAME_MODE)) === "hard") {
+                updateTimeAndSprites();
+            }
+            is_scored = true
             if(scoredFroggers.length === 5) {
                 scoredFroggers = [];
                 score += 1000;
             }
-            score += 50 + remaining_time / 2 * 10;
-            start_time = new Date();
-            updateTimeAndSprites();
-            is_scored = true
         }
 
         // reset frogger if not on obstacle in river

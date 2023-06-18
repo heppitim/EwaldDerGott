@@ -32,17 +32,17 @@ body {
     color: #1ec201;
 }
 
-
+.opt {
+    margin-top: 20px;
+}
 
 .opt label {
-    margin-left: 30px;
     font-size: 30px;
     font-family: 'OCR A Std', monospace;
-    line-height: 120px;
-    justify-content: center;
     text-align: center;
     text-shadow: 1px 1px #cbd694;
     color: #d6df14;
+    margin-left: 30px;
 }
 
 .opt input {
@@ -50,7 +50,6 @@ body {
     width: 20px;
     float: right;
     margin-right: 30px;
-    margin-top: 48px;
 }
 
 .btn {
@@ -89,6 +88,36 @@ body {
 .character {
     justify-content: center;
     text-align: center;
+}
+
+.gamemode-overlay {
+    text-align: center;
+}
+
+.gamemode-overlay label {
+    color: #d6df14;
+    text-shadow: 1px 1px #cbd694;
+    font-size: 30px;
+}
+
+.gamemode {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.gamemode label {
+    display: flex;
+    flex-direction: column-reverse;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.gamemode span {
+    color: #d6df14;
+    text-shadow: 1px 1px #cbd694;
+    font-size: 20px;
 }
 
 #img-gameover {

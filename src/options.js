@@ -1,15 +1,36 @@
 window.addEventListener("DOMContentLoaded", (event) => {
 
-    const music = document.getElementById("music")
-    const sounds = document.getElementById("sounds")
+
+    const normal = document.getElementById("normal");
+    const hard = document.getElementById("hard");
+    const music = document.getElementById("music");
+    const sounds = document.getElementById("sounds");
     const back = document.getElementById("back");
 
-    if (back) {
-        back.addEventListener("click", function () {
-            toggleScreen("start-screen", true);
-            toggleScreen("option-screen", false);
+
+
+
+    if(normal) {
+
+        if(JSON.parse(localStorage.getItem(GAME_MODE)) === "normal") {
+            normal.checked = true;
+        }
+
+        normal.addEventListener("click", function () {
+           localStorage.setItem(GAME_MODE, JSON.stringify(normal.value));
         });
     }
+
+    if(hard) {
+        if(JSON.parse(localStorage.getItem(GAME_MODE)) === "hard") {
+            hard.checked = true;
+        }
+
+        hard.addEventListener("click", function () {
+            localStorage.setItem(GAME_MODE, JSON.stringify(hard.value));
+        })
+    }
+
 
     if (music) {
         music.checked = JSON.parse(localStorage.getItem(SAFE_MUSIC));
@@ -37,5 +58,11 @@ window.addEventListener("DOMContentLoaded", (event) => {
         })
     }
 
+    if (back) {
+        back.addEventListener("click", function () {
+            toggleScreen("start-screen", true);
+            toggleScreen("option-screen", false);
+        });
+    }
 
 })

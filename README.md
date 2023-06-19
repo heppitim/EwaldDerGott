@@ -26,13 +26,13 @@ Die Canvas Demo aus Teams
 https://www.deviantart.com/sketchbattleart/art/Frogger-Sprite-sheet-701348142 <br>
 https://papptimus.artstation.com/projects/okqWq <br>
 https://www.artstation.com/artwork/3dVnEJ <br>
-https://nintendroid.org/post/142469784612/frogger-2-for-the-game-boy-color-has-the-most <br>
-(Linzenzfrei alles) 
+(alles Lizenzfrei)
 
 ### Sounds:
 https://mixkit.co/free-sound-effects/arcade/ (Jump Sound) <br>
 https://pixabay.com/sound-effects/search/death/ (Death Sound) <br>
 https://www.computerarcheology.com/Arcade/Frogger/FroggerFix.mp3 (Theme) <br>
+(kostenlos Nutzbar)
 
 ## Bugs: <br>
 Derzeit sind keine großen Bugs bekannt. <br>

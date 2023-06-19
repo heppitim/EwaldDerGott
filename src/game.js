@@ -794,7 +794,7 @@ function preloadAssets() {
 
     //sprites
     water = addImage("sprites/water.png");
-    gras = addImage("sprites/gras.png");
+    gras = addImage("sprites/gras.jpg");
     brick = addImage("sprites/brick.png")
     sprites_up = addImage("sprites/frogger_sprites_up.png");
     sprites_down = addImage("sprites/frogger_sprites_down.png");

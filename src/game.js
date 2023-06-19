@@ -81,7 +81,7 @@ Sprite.prototype.render = function() {
         ctx.drawImage(sprites_down, 450, 584, sprites_down.width / 8 -1, 48, this.x, this.y, this.size, grid - gridGap);
     }
     else if (this.name === 'scoredFrog') {
-        if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "green") {
+        if(JSON.parse(localStorage.getItem(SAFE_PLAYER)) === "green" || JSON.parse(localStorage.getItem(SAFE_PLAYER)) === null) {
             ctx.drawImage(sprites_up, 262, 8, sprites_up.width / 8 -12, 54, this.x, this.y, grid, grid- 10);
         }
         else {

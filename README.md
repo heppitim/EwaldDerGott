@@ -11,10 +11,10 @@ https://de.wikipedia.org/wiki/Frogger
 
 ## 3rdParty Komponenten: 
 
-Die Grundfunktinonen des Spiels wurde von folgendem Git Repository übernommen:<br>
+### Die Grundfunktinonen des Spiels wurde von folgendem Git Repository übernommen:<br>
 https://gist.github.com/straker/82a4368849cbd441b05bd6a044f2b2d3
 
-Weitere Quellen von Code und Hilfestellungen sind unteranderem folgende Seiten:<br>
+### Weitere Quellen von Code und Hilfestellungen sind unteranderem folgende Seiten:<br>
 https://www.w3schools.com/ <br>
 https://codepen.io/ <br>
 https://stackoverflow.com/ <br>
@@ -22,8 +22,17 @@ https://www.youtube.com/watch?v=QXYT8sEJRZk <br>
 https://michael-karen.medium.com/how-to-save-high-scores-in-local-storage-7860baca9d68 <br>
 Die Canvas Demo aus Teams
 
-Der Großteil der Sprites, kommt von folgender Seite: <br>
-https://www.deviantart.com/sketchbattleart/art/Frogger-Sprite-sheet-701348142
+### Der Großteil der Sprites, kommt von folgender Seite: <br>
+https://www.deviantart.com/sketchbattleart/art/Frogger-Sprite-sheet-701348142 <br>
+https://papptimus.artstation.com/projects/okqWq <br>
+https://www.artstation.com/artwork/3dVnEJ <br>
+https://nintendroid.org/post/142469784612/frogger-2-for-the-game-boy-color-has-the-most <br>
+(Linzenzfrei alles) 
+
+### Sounds: <br>
+https://mixkit.co/free-sound-effects/arcade/ (Jump Sound) <br>
+https://pixabay.com/sound-effects/search/death/ (Death Sound) <br>
+https://www.computerarcheology.com/Arcade/Frogger/FroggerFix.mp3 (Theme) <br>
 
 ## Bugs: <br>
 Derzeit sind keine großen Bugs bekannt. <br>

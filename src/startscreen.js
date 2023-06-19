@@ -1,8 +1,11 @@
 window.addEventListener("DOMContentLoaded", (event) => {
     const startGame = document.getElementById("start-game");
-    const options = document.getElementById("options")
-    const character = document.getElementById("character")
+    const options = document.getElementById("options");
+    const character = document.getElementById("character");
+    const controls = document.getElementById("controls");
+
     preloadAssets();
+
     if(startGame) {
         startGame.addEventListener("click", function () {
             start();
@@ -22,6 +25,14 @@ window.addEventListener("DOMContentLoaded", (event) => {
             toggleScreen("character-screen", true);
         })
     }
+
+    if(controls) {
+        controls.addEventListener("click", function () {
+            toggleScreen("start-screen", false);
+            toggleScreen("controls-screen", true);
+        })
+    }
+
 })
 
 

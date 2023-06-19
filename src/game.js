@@ -1,7 +1,7 @@
 var canvas, ctx;
 
 //sprites
-var water, gras, brick;
+var gras, brick;
 var sprites_up, sprites_down, sprites_right,
     sprites_left, sprites_mirrored,
     sprites_down_mirrored, sprites_left_mirrored;
@@ -218,6 +218,7 @@ function start() {
     toggleScreen("start-screen", false);
     toggleScreen("game", true);
     toggleScreen("gameover-screen", false);
+
     init();
 
     this.loop = setInterval(() => {
@@ -725,6 +726,32 @@ function keyboardPressed(ev) {
             }
         }
     }
+    if(ev.which === 27 && document.getElementById("game").style.display === "block") {
+        goToStartMenu();
+    }
+    if(ev.which === 83 && document.getElementById("game").style.display === "block") {
+        if( JSON.parse(localStorage.getItem(SAFE_SOUND)) === true) {
+            localStorage.setItem(SAFE_SOUND, "false");
+        } else {
+            localStorage.setItem(SAFE_SOUND, "true");
+        }
+    }
+    if(ev.which === 77 && document.getElementById("game").style.display === "block") {
+        if( JSON.parse(localStorage.getItem(SAFE_MUSIC)) === true) {
+            localStorage.setItem(SAFE_MUSIC, "false");
+            stopTheme();
+        } else {
+            localStorage.setItem(SAFE_MUSIC, "true");
+            playTheme();
+        }
+    }
+}
+
+function goToStartMenu() {
+    toggleScreen("start-screen", true);
+    toggleScreen("game", false);
+    clearInterval(loop);
+    stopTheme();
 }
 
 function playSound(sound) {
@@ -793,7 +820,6 @@ function preloadAssets() {
     }
 
     //sprites
-    water = addImage("sprites/water.png");
     gras = addImage("sprites/gras.jpg");
     brick = addImage("sprites/brick.png")
     sprites_up = addImage("sprites/frogger_sprites_up.png");

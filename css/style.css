@@ -127,6 +127,29 @@ body {
     text-align: center;
 }
 
+.control {
+    display: flex;
+    align-items: center;
+}
+
+.keys {
+    width: 50px;
+    margin-right: 50px;
+    margin-left: 50px;
+    margin-top: 25px;
+}
+
+.key-label {
+    margin-top: 25px;
+}
+
+.control label {
+    color: #d6df14;
+    text-shadow: 1px 1px #cbd694;
+    font-size: 15px;
+    margin-right: 20px;
+}
+
 .input-hidden {
     position: absolute;
     left: -9999px;

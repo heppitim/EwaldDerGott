@@ -6,8 +6,9 @@
     <link href="css/style.css" rel="stylesheet">
     <script type="text/javascript" src="src/game.js"></script>
     <script type="text/javascript" src="src/startscreen.js"></script>
-    <script type="text/javascript" src="src/options.js"></script>
     <script type="text/javascript" src="src/character.js"></script>
+    <script type="text/javascript" src="src/options.js"></script>
+    <script type="text/javascript" src="src/controls.js"></script>
     <script type="text/javascript" src="src/gameover.js"></script>
 </head>
 <body>
@@ -17,6 +18,7 @@
             <button class="btn" id="start-game">Starte das Spiel</button>
             <button class="btn" id="character">Spieler</button>
             <button class="btn" id="options">options</button>
+            <button class="btn" id="controls">Steuerung</button>
         </div>
     </div>
     <div class="nav" id="character-screen" style="display: none">
@@ -86,6 +88,26 @@
             </div>
             <button class="btn" id="back">Zurück</button>
         </div>
+    </div>
+    <div class="nav" id="controls-screen" style="display: none">
+        <div class="frogger"> <p> Steuerung </p> </div>
+        <div class="control">
+            <img src="sprites/pfeiltasten.png"  alt="pfeiltasten" style="width: 150px"/>
+            <label>Zum Steuern des Frosches, die Pfeiltasten betätigen</label>
+        </div>
+        <div class="control">
+            <img src="sprites/esc.png" class="keys" alt="esc" style="width: 50px"/>
+            <label class="key-label">Durch drücken von ESC, kommt man auf die Startseite</label>
+        </div>
+        <div class="control">
+            <img src="sprites/s-Taste.png" class="keys" alt="s-Taste" style="width: 50px"/>
+            <label class="key-label">Durch drücken von S, kann der Sound an oder aus gemacht werden</label>
+        </div>
+        <div class="control">
+            <img src="sprites/m-Taste.png" class="keys" alt="m-Taste" style="width: 50px"/>
+            <label class="key-label">Durch drücken von M, kann die Musik an oder aus gemacht werden</label>
+        </div>
+        <button class="btn" id="back3">Zurück</button>
     </div>
     <canvas width="624" height="720" id="game" style="display: none"></canvas>
     <div id="gameover-screen" class="nav" style="display: none">

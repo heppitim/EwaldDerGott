@@ -65,4 +65,4 @@ window.addEventListener("DOMContentLoaded", (event) => {
         });
     }
 
-})
+});
